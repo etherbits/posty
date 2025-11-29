@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import db from "../src/lib/db/index.js";
 
 // Script to create the tables required for app
@@ -26,6 +23,9 @@ async function createTables() {
         user_id UUID NOT NULL,
         content TEXT NOT NULL,
         scheduled_time TIMESTAMPTZ,
+        status TEXT NOT NULL DEFAULT 'pending',
+        visibility TEXT NOT NULL DEFAULT 'private',
+        media_ids TEXT[],
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
   `;

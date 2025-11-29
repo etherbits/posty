@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import db from "../src/lib/db/index.js";
 
 // Script to remove all data from the tables (keeps table structure)

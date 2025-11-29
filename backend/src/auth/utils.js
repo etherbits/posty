@@ -9,10 +9,8 @@ export function signJwt(user) {
 }
 
 export function authMiddleware(req, res, next) {
-	const header = req.headers.authorization;
-	if (!header) return res.status(401).send("Missing Authorization header");
-
-	const token = header.replace("Bearer ", "");
+	const token = req.cookies["token"];
+	if (!token) return res.status(401).send("Missing access token");
 
 	try {
 		req.user = jwt.verify(token, process.env.JWT_SECRET);
