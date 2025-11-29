@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import db from "../src/db/index.js";
+import db from "../src/lib/db/index.js";
 
 // Script to create the tables required for app
 async function createTables() {

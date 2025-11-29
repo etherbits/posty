@@ -5,7 +5,8 @@
 	"main": "index.js",
 	"scripts": {
 		"start": "nodemon src/index.js",
-		"setup-db": "node scripts/setup-db.js"
+		"db:setup": "node scripts/setup-db.js",
+		"db:reset": "node scripts/reset-db.js"
 	},
 	"type": "module",
 	"keywords": [],
@@ -14,9 +15,12 @@
 	"packageManager": "pnpm@10.11.0",
 	"dependencies": {
 		"arctic": "^3.7.0",
+		"argon2": "^0.44.0",
 		"cookie-parser": "^1.4.7",
 		"dotenv": "^17.2.3",
 		"express": "^5.1.0",
+		"joi": "^18.0.2",
+		"jsonwebtoken": "^9.0.2",
 		"pg": "^8.16.3"
 	},
 	"devDependencies": {

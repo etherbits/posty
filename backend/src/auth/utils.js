@@ -1,12 +1,14 @@
+import jwt from "jsonwebtoken";
+
 const EXPIRES_IN = "1h";
 
-function signJwt(user) {
+export function signJwt(user) {
 	return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
 		expiresIn: EXPIRES_IN,
 	});
 }
 
-function authMiddleware(req, res, next) {
+export function authMiddleware(req, res, next) {
 	const header = req.headers.authorization;
 	if (!header) return res.status(401).send("Missing Authorization header");
 
