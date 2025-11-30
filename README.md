@@ -1,6 +1,11 @@
 # Posty 
 app for scheduling posts on Mastodon
 
+## Team members
+- Nikoloz Kvrivishvili (etherbits)
+- Badreldin Ali Badri Ali Musa (update this with your github username)
+- Lobjanidze Tsotne (update this with your github username)
+
 ## How to run
 
 First add an ".env" file to the backend directory and fill it with values like in the .env.sample file. (Contact me so I can provide them)
