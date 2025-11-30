@@ -7,7 +7,8 @@
 		"start": "nodemon --env-file=.env src/index.js",
 		"db:setup": "node --env-file=.env scripts/setup-db.js",
 		"db:reset": "node --env-file=.env scripts/reset-db.js",
-		"db:teardown": "node --env-file=.env scripts/teardown-db.js"
+		"db:teardown": "node --env-file=.env scripts/teardown-db.js",
+		"make-admin": "node --env-file=.env scripts/make-admin.js"
 	},
 	"type": "module",
 	"keywords": [],

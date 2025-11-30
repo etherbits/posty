@@ -21,10 +21,12 @@ router.post("/sign-up", async (req, res) => {
 
 	const user = await UserRepository.create(parsedBody.username, hashedPassword);
 
-	const token = signJwt(user);
+	const userProfileData = await extractProfileData(user, false);
+
+	const token = signJwt(userProfileData);
 
 	res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
-	res.json({ user: extractProfileData(user) });
+	res.json({ user: userProfileData });
 });
 
 router.post("/sign-in", async (req, res) => {
@@ -45,10 +47,12 @@ router.post("/sign-in", async (req, res) => {
 		return res.status(401).json({ error: "User not found" });
 	}
 
-	const token = signJwt(user);
+	const userProfileData = await extractProfileData(user);
+
+	const token = signJwt(userProfileData);
 
 	res.cookie("token", token, { httpOnly: true, sameSite: "lax" });
-	res.json({ user: extractProfileData(user) });
+	res.json({ user: userProfileData });
 });
 
 router.get("/oauth/mastodon", authMiddleware, async (req, res) => {
@@ -92,6 +96,21 @@ router.get("/oauth/mastodon/callback", authMiddleware, async (req, res) => {
 				'http://localhost:5173?toastMessage="Failed to connect to Mastodon"',
 			);
 	}
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	return res.status(200).json(await extractProfileData(user));
+});
+
+router.post("/logout", (req, res) => {
+	res.clearCookie("token");
+	return res.status(200).json({ message: "Logged out successfully" });
 });
 
 export default router;

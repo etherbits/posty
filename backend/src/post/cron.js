@@ -7,6 +7,6 @@ export function startPostDispatching() {
 
 		const sentCount = await sendDuePosts();
 
-		console.info(`${sentCount.length} due posts sent.`);
+		console.info(`${sentCount} due posts sent.`);
 	});
 }

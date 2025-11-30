@@ -5,6 +5,7 @@ const postSchema = Joi.object({
 	scheduledTime: Joi.date().iso().required(),
 	visibility: Joi.string().valid("public", "private").required(),
 	mediaIds: Joi.array().items(Joi.string()).required(),
+	status: Joi.string().valid("pending", "canceled").optional(),
 });
 
 export default {

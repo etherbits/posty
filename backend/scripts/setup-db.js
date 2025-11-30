@@ -21,10 +21,12 @@ async function createTables() {
     CREATE TABLE IF NOT EXISTS posts (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL,
+        mastodon_id TEXT,
         content TEXT NOT NULL,
         scheduled_time TIMESTAMPTZ,
         status TEXT NOT NULL DEFAULT 'pending',
         visibility TEXT NOT NULL DEFAULT 'private',
+        url TEXT,
         media_ids TEXT[],
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );

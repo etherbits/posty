@@ -36,8 +36,17 @@ async function getMastodonKey(userId) {
 		[userId],
 	);
 
-	const key = result.rows[0].access_token;
+	const key = result.rows[0]?.access_token;
 	return key;
+}
+
+async function hasMastodonConnected(userId) {
+	const result = await db.query(
+		"SELECT 1 FROM mastodon_keys WHERE user_id = $1",
+		[userId],
+	);
+
+	return result.rows.length > 0;
 }
 
 export default {
@@ -45,4 +54,5 @@ export default {
 	getByUsername,
 	addMastodonKey,
 	getMastodonKey,
+	hasMastodonConnected,
 };

@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 
 const EXPIRES_IN = "1h";
 
-export function signJwt(user) {
-	return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+export function signJwt(userProfileData) {
+	return jwt.sign(userProfileData, process.env.JWT_SECRET, {
 		expiresIn: EXPIRES_IN,
 	});
 }
