@@ -3,7 +3,7 @@ app for scheduling posts on Mastodon
 
 ## Team members
 - Nikoloz Kvrivishvili (etherbits)
-- Badreldin Ali Badri Ali Musa (update this with your github username)
+- Badreldin Moussa (itsb2dr)
 - Lobjanidze Tsotne (update this with your github username)
 
 ## How to run
