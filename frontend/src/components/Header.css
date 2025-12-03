@@ -1,0 +1,79 @@
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--spacing-md) var(--spacing-xl);
+	background-color: var(--bg-secondary);
+	border-bottom: 1px solid var(--border-color);
+}
+
+.header-logo {
+	color: #9b6cff;
+	font-weight: 300;
+}
+
+.header-right {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-lg);
+	margin-left: auto;
+}
+
+.user-profile {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-md);
+	padding: var(--spacing-sm) var(--spacing-md);
+	border-radius: var(--radius-md);
+}
+
+.user-avatar {
+	width: 40px;
+	height: 40px;
+	border-radius: var(--radius-full);
+	background: linear-gradient(
+		135deg,
+		var(--accent-purple),
+		var(--accent-blue)
+	);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: var(--font-base);
+	color: white;
+}
+
+.user-info {
+	display: flex;
+	flex-direction: column;
+}
+
+.user-name {
+	font-weight: 500;
+	font-size: var(--font-base);
+	color: var(--text-primary);
+}
+
+.user-role {
+	font-size: var(--font-xs);
+	color: var(--text-muted);
+}
+
+.logout-btn {
+	padding: var(--spacing-sm) var(--spacing-md);
+	font-size: var(--font-sm);
+	font-weight: 500;
+	color: var(--text-muted);
+	background-color: transparent;
+	border: 1px solid var(--border-color);
+	border-radius: var(--radius-md);
+	cursor: pointer;
+	transition: all var(--transition-fast);
+}
+
+.logout-btn:hover {
+	color: var(--text-primary);
+	background-color: var(--bg-card);
+	border-color: var(--text-muted);
+}

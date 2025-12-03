@@ -4,7 +4,7 @@ import { authMiddleware } from "../auth/utils.js";
 import UserRepository from "../user/repository.js";
 import PostRepository from "./repository.js";
 import PostParser from "./schemas.js";
-import { enrichPost } from "./utils.js";
+import { enrichPosts } from "./utils.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -74,6 +74,11 @@ router.post(
 );
 
 router.get("/all", authMiddleware, async (req, res) => {
+	// Pagination parameters
+	const page = Math.max(1, parseInt(req.query.page) || 1);
+	const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+	const offset = (page - 1) * limit;
+
 	// Getting the user from DB as JWT payload may not have the current info
 	const user = await UserRepository.getByUsername(req.user.username);
 
@@ -81,19 +86,29 @@ router.get("/all", authMiddleware, async (req, res) => {
 		return res.status(404).json({ error: "User not found" });
 	}
 
-	const posts =
+	// Get total count, paginated posts, and stats
+	const [{ posts, total }, stats] = await Promise.all([
 		user.role === "admin"
-			? await PostRepository.getPosts()
-			: await PostRepository.getOwnedPosts(user.id);
+			? PostRepository.getPostsPaginated(limit, offset)
+			: PostRepository.getOwnedPostsPaginated(user.id, limit, offset),
+		user.role === "admin"
+			? PostRepository.getStats()
+			: PostRepository.getStats(user.id),
+	]);
 
-	// Enrich sent posts with Mastodon data (replies, favorites)
-	const enrichedPosts = await Promise.all(
-		posts.map((post) =>
-			post.status === "sent" && post.mastodon_id ? enrichPost(post) : post,
-		),
-	);
+	// Batch enrich sent posts with Mastodon data (replies, favorites)
+	const enrichedPosts = await enrichPosts(posts);
 
-	return res.status(200).json(enrichedPosts);
+	return res.status(200).json({
+		posts: enrichedPosts,
+		pagination: {
+			page,
+			limit,
+			total,
+			totalPages: Math.ceil(total / limit),
+		},
+		stats,
+	});
 });
 
 router.patch("/:id", authMiddleware, async (req, res) => {

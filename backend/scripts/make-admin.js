@@ -6,7 +6,6 @@ async function makeAdmin() {
 
 	if (!username) {
 		console.error("❌ Please provide a username");
-		console.error("Usage: node scripts/make-admin.js <username>");
 		process.exit(1);
 	}
 

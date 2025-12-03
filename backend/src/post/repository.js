@@ -42,6 +42,59 @@ async function getPosts() {
 	return result.rows;
 }
 
+async function getOwnedPostsPaginated(userId, limit, offset) {
+	const [postsResult, countResult] = await Promise.all([
+		db.query(
+			"SELECT * FROM posts WHERE user_id = $1 ORDER BY scheduled_time DESC LIMIT $2 OFFSET $3",
+			[userId, limit, offset],
+		),
+		db.query("SELECT COUNT(*) FROM posts WHERE user_id = $1", [userId]),
+	]);
+
+	return {
+		posts: postsResult.rows,
+		total: parseInt(countResult.rows[0].count, 10),
+	};
+}
+
+async function getPostsPaginated(limit, offset) {
+	const [postsResult, countResult] = await Promise.all([
+		db.query(
+			"SELECT posts.*, users.username FROM posts JOIN users ON posts.user_id = users.id ORDER BY scheduled_time DESC LIMIT $1 OFFSET $2",
+			[limit, offset],
+		),
+		db.query("SELECT COUNT(*) FROM posts"),
+	]);
+
+	return {
+		posts: postsResult.rows,
+		total: parseInt(countResult.rows[0].count, 10),
+	};
+}
+
+async function getStats(userId = null) {
+	const whereClause = userId ? "WHERE user_id = $1" : "";
+	const params = userId ? [userId] : [];
+
+	const result = await db.query(
+		`SELECT
+			COUNT(*) as total,
+			COUNT(*) FILTER (WHERE status = 'sent') as sent,
+			COUNT(*) FILTER (WHERE status = 'pending') as pending,
+			COUNT(*) FILTER (WHERE status = 'canceled') as canceled
+		FROM posts ${whereClause}`,
+		params,
+	);
+
+	const row = result.rows[0];
+	return {
+		total: parseInt(row.total, 10),
+		sent: parseInt(row.sent, 10),
+		pending: parseInt(row.pending, 10),
+		canceled: parseInt(row.canceled, 10),
+	};
+}
+
 async function updateOwnPost(
 	postId,
 	content,
@@ -90,6 +143,9 @@ export default {
 	updateAsSent,
 	getOwnedPosts,
 	getPosts,
+	getOwnedPostsPaginated,
+	getPostsPaginated,
+	getStats,
 	updateOwnPost,
 	updatePost,
 	deleteOwnPost,
