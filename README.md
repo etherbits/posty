@@ -1,6 +1,9 @@
 # Posty 
 app for scheduling posts on Mastodon
 
+<img width="1359" height="1098" alt="image" src="https://github.com/user-attachments/assets/09b44f77-1b6c-4716-9eb7-afbea10ae522" />
+
+
 ## Team members
 - Nikoloz Kvrivishvili (etherbits)
 - Badreldin Moussa (itsb2dr)
