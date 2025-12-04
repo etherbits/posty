@@ -1,0 +1,35 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 12px 32px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    font-size: var(--font-sm);
+    color: var(--text-muted);
+    border-radius: var(--radius-md);
+    transition: 0.2s ease;
+}
+
+.nav-item .icon {
+    font-size: 16px;
+}
+
+.nav-item:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+}
+
+.nav-item.active {
+    background: var(--accent-purple);
+    color: white;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+}

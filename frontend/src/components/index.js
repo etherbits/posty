@@ -6,3 +6,4 @@ export { CreatePostForm } from "./CreatePostForm";
 export { AuthForm } from "./AuthForm";
 export { PostsList } from "./PostsList";
 export { ConnectMastodon } from "./ConnectMastodon";
+export { Profile } from "./Profile.jsx";

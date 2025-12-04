@@ -8,14 +8,11 @@ export function useAuth() {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [user, setUser] = useState(null);
 
-	// Lock to prevent duplicate auth checks
 	const isFetchingRef = useRef(false);
 	const didInitRef = useRef(false);
 
 	const fetchCurrentUser = useCallback(async () => {
-		if (isFetchingRef.current) {
-			return;
-		}
+		if (isFetchingRef.current) return;
 
 		isFetchingRef.current = true;
 
@@ -42,20 +39,15 @@ export function useAuth() {
 	}, []);
 
 	useEffect(() => {
-		if (didInitRef.current) {
-			return;
-		}
+		if (didInitRef.current) return;
 		didInitRef.current = true;
 
 		(async () => {
 			try {
 				const storedUser = localStorage.getItem("user");
 				if (storedUser) {
-					const parsedUser = JSON.parse(storedUser);
-					if (parsedUser) {
-						setUser(parsedUser);
-						setIsAuthenticated(true);
-					}
+					setUser(JSON.parse(storedUser));
+					setIsAuthenticated(true);
 				}
 				await fetchCurrentUser();
 			} finally {
@@ -135,7 +127,40 @@ export function useAuth() {
 		window.location.href = `${API_URL}/auth/oauth/mastodon`;
 	};
 
-	// Memoized values instead of functions to prevent useEffect re-runs
+	/* ============================
+	   NEW: DISCONNECT FUNCTION
+	============================= */
+	const disconnectMastodon = async () => {
+		try {
+			const res = await fetch(`${API_URL}/auth/mastodon/disconnect`, {
+				method: "POST",
+				credentials: "include",
+			});
+
+			if (!res.ok) throw new Error();
+
+			setUser((prev) => ({
+				...prev,
+				hasMastodonConnected: false,
+			}));
+
+			localStorage.setItem(
+				"user",
+				JSON.stringify({
+					...user,
+					hasMastodonConnected: false,
+				})
+			);
+
+			toast.success("Disconnected Mastodon!");
+			return true;
+		} catch (err) {
+			console.error(err);
+			toast.error("Failed to disconnect Mastodon");
+			return false;
+		}
+	};
+
 	const canViewPosts = useMemo(() => {
 		if (!user) return false;
 		if (user.role === "admin") return true;
@@ -155,6 +180,7 @@ export function useAuth() {
 		signUp,
 		logout,
 		connectMastodon,
+		disconnectMastodon,
 		canViewPosts,
 		canSchedulePosts,
 	};

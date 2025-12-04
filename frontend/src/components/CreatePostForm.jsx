@@ -43,7 +43,7 @@ export function CreatePostForm({ onSchedule, onUploadMedia }) {
     <div className="create-post-form">
       <div className="form-header">
         <h3 className="form-title">Schedule New Post</h3>
-        <p className="form-subtitle">Create and schedule your Mastodon posts</p>
+        <p className="form-subtitle">Create and schedule your posts!</p>
       </div>
 
       <form onSubmit={handleSubmit}>

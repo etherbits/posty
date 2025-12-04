@@ -7,7 +7,6 @@
 
 .main-content {
 	flex: 1;
-
 	display: flex;
 	flex-direction: column;
 	min-height: 100vh;
@@ -126,4 +125,32 @@
 	.page-title {
 		font-size: var(--font-2xl);
 	}
+}
+
+/* ============================================================
+   ⭐ FIXED VISIBILITY — ALWAYS SHOW PANELS & CARDS (NOT MOBILE ONLY)
+============================================================ */
+
+/* Dashboard background */
+.dashboard {
+	background: var(--bg-secondary);
+	border-radius: var(--radius-lg);
+	padding: var(--spacing-xl);
+}
+
+/* Left & right panels */
+.dashboard-left,
+.dashboard-right {
+	background: var(--bg-card);
+	padding: var(--spacing-lg);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-md);
+}
+
+/* Stats cards */
+.stats-grid .stats-card {
+	background: var(--bg-card);
+	padding: var(--spacing-md);
+	border-radius: var(--radius-md);
+	box-shadow: var(--shadow-sm);
 }

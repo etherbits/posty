@@ -1,3 +1,6 @@
+/* ------------------------------------------------------
+   DARK THEME (DEFAULT)
+------------------------------------------------------- */
 :root {
   /* Colors */
   --bg-primary: #0a0a0f;
@@ -57,7 +60,49 @@
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
   --transition-slow: 350ms ease;
+
+  /* Animation */
+  transition: background-color var(--transition-base),
+              color var(--transition-base),
+              border-color var(--transition-base);
 }
+
+/* ------------------------------------------------------
+   LIGHT THEME
+------------------------------------------------------- */
+
+html.light-theme {
+  /* Background Colors */
+  --bg-primary: #f8f8fa;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f2f2f7;
+  --bg-input: #f0f0f5;
+
+  /* Text Colors */
+  --text-primary: #1a1a1d;
+  --text-secondary: #4b4b55;
+  --text-muted: #6d6d78;
+
+  /* Borders */
+  --border-color: #d8d8e0;
+  --border-light: #c8c8d2;
+
+  /* Accent Colors (same but brighter visual on light bg) */
+  --accent-purple: #7c3aed;
+  --accent-purple-hover: #6d28d9;
+  --accent-blue: #2563eb;
+  --accent-green: #16a34a;
+
+  /* Shadows softer for light mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ------------------------------------------------------
+   GLOBAL STYLES
+------------------------------------------------------- */
 
 * {
   box-sizing: border-box;
@@ -79,7 +124,7 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar styling */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -98,21 +143,30 @@ body {
   background: var(--text-muted);
 }
 
-/* Input styling */
-input, textarea, select {
+/* Inputs */
+input,
+textarea,
+select {
   font-family: inherit;
   font-size: var(--font-base);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
-/* Button reset */
+/* Buttons */
 button {
   font-family: inherit;
   cursor: pointer;
   border: none;
   background: none;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast),
+              border-color var(--transition-fast);
 }
 
-/* Link reset */
+/* Links */
 a {
   color: inherit;
   text-decoration: none;

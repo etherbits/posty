@@ -1,13 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>posty-frontend</title>
+    <title>Posty</title>
+
+    <!-- Load Theme BEFORE React -->
+    <link rel="stylesheet" href="/src/styles/theme.css" />
+
+    <!-- Load Global CSS Overrides -->
+    <link rel="stylesheet" href="/src/index.css" />
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- Vite Mount -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
