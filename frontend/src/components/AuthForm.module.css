@@ -1,0 +1,159 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-center);
+  padding: 40px 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--bg-card);
+  border-radius: 26px;
+  padding: 32px 30px 28px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(231, 233, 239, 0.8);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(140deg, var(--color-primary), #6b62e6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-white);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-navy);
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  background: #f2f3f8;
+  padding: 4px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+.tabActive {
+  background: var(--color-primary);
+  color: var(--text-white);
+  box-shadow: 0 8px 20px rgba(79, 70, 186, 0.25);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  color: var(--text-indigo);
+  font-weight: 600;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #b2b7c6;
+}
+
+.input {
+  width: 100%;
+  padding: 12px 12px 12px 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: #f8f9fc;
+  color: var(--text-dark);
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.submit {
+  margin-top: 4px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--color-primary);
+  color: var(--text-white);
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 12px 24px rgba(79, 70, 186, 0.28);
+}
+
+.footer {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.switch {
+  margin-left: 6px;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 26px 22px 24px;
+  }
+
+  .brand {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

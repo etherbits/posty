@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import toast from "react-hot-toast";
+import { notifyError, notifySuccess } from "../utils/toastHistory";
 
 const API_URL = "http://localhost:3000";
 const POSTS_PER_PAGE = 10;
@@ -60,7 +60,7 @@ export function usePosts() {
 			}
 		} catch (error) {
 			console.error("Error fetching posts:", error);
-			toast.error("Error fetching posts. Make sure you're signed in.");
+			notifyError("Error fetching posts. Make sure you're signed in.");
 		} finally {
 			isFetchingRef.current = false;
 		}
@@ -112,13 +112,13 @@ export function usePosts() {
 				throw new Error(`Scheduling post failed: ${errorMessage}`);
 			}
 
-			toast.success("Post scheduled successfully!");
+			notifySuccess("Post scheduled successfully!");
 			// Go to first page to see the new post
 			fetchPosts(1);
 			return true;
 		} catch (error) {
 			console.error(error);
-			toast.error("Failed to schedule post");
+			notifyError("Failed to schedule post");
 			return false;
 		}
 	};
@@ -137,11 +137,11 @@ export function usePosts() {
 			if (!response.ok) throw new Error("Image upload failed");
 
 			const data = await response.json();
-			toast.success("Media uploaded successfully!");
+			notifySuccess("Media uploaded successfully!");
 			return data.id;
 		} catch (error) {
 			console.error(error);
-			toast.error("Failed to upload media");
+			notifyError("Failed to upload media");
 			return null;
 		}
 	};
@@ -192,13 +192,13 @@ export function usePosts() {
 				throw new Error("Failed to update post");
 			}
 
-			toast.success("Post updated successfully!");
+			notifySuccess("Post updated successfully!");
 			setEditingPostId(null);
 			refreshCurrentPage();
 			return true;
 		} catch (error) {
 			console.error("Error updating post:", error);
-			toast.error("Failed to update post");
+			notifyError("Failed to update post");
 			return false;
 		}
 	};
@@ -236,12 +236,12 @@ export function usePosts() {
 				throw new Error("Failed to delete post");
 			}
 
-			toast.success("Post deleted successfully!");
+			notifySuccess("Post deleted successfully!");
 			refreshCurrentPage();
 			return true;
 		} catch (error) {
 			console.error("Error deleting post:", error);
-			toast.error("Failed to delete post");
+			notifyError("Failed to delete post");
 			return false;
 		}
 	};
@@ -257,6 +257,10 @@ export function usePosts() {
 			(sum, p) => sum + (p.favorites_count || 0),
 			0,
 		);
+		const totalReposts = posts.reduce(
+			(sum, p) => sum + (p.reposts_count ?? p.reblogs_count ?? 0),
+			0,
+		);
 
 		return {
 			totalPosts: stats.total,
@@ -265,6 +269,7 @@ export function usePosts() {
 			canceledPosts: stats.canceled,
 			totalReplies,
 			totalFavorites,
+			totalReposts,
 		};
 	};
 

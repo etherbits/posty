@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { User, Lock, ArrowRight, UserPlus } from "lucide-react";
-import "./AuthForm.css";
+import styles from "./AuthForm.module.css";
 
 export function AuthForm({ onSignIn, onSignUp }) {
 	const [isSignUp, setIsSignUp] = useState(false);
@@ -27,100 +27,121 @@ export function AuthForm({ onSignIn, onSignUp }) {
 	};
 
 	return (
-		<div className="auth-container">
-			<div className="auth-card">
-				<div className="auth-header">
-					<div className="auth-logo">
-						<span>P</span>
+		<div className={styles.page}>
+			<div className={styles.card}>
+				<div className={styles.brand}>
+					<div className={styles.logo}>P</div>
+					<div>
+						<h1 className={styles.title}>Welcome to Posty</h1>
+						<p className={styles.subtitle}>
+							{isSignUp
+								? "Create your account to get started"
+								: "Sign in to manage your scheduled posts"}
+						</p>
 					</div>
-					<h1 className="auth-title">Welcome to Posty</h1>
-					<p className="auth-subtitle">
-						{isSignUp
-							? "Create an account to get started"
-							: "Sign in to manage your scheduled posts"}
-					</p>
 				</div>
 
-				<div className="auth-tabs">
+				<div className={styles.tabs}>
 					<button
-						className={`auth-tab ${!isSignUp ? "active" : ""}`}
+						type="button"
+						className={`${styles.tab} ${!isSignUp ? styles.tabActive : ""}`}
 						onClick={() => setIsSignUp(false)}
 					>
 						Sign In
 					</button>
 					<button
-						className={`auth-tab ${isSignUp ? "active" : ""}`}
+						type="button"
+						className={`${styles.tab} ${isSignUp ? styles.tabActive : ""}`}
 						onClick={() => setIsSignUp(true)}
 					>
 						Sign Up
 					</button>
 				</div>
 
-				<form onSubmit={handleSubmit} className="auth-form">
-					<div className="input-group">
-						<User size={18} className="input-icon" />
-						<input
-							type="text"
-							placeholder="Username"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							className="auth-input"
-							required
-						/>
-					</div>
-
-					<div className="input-group">
-						<Lock size={18} className="input-icon" />
-						<input
-							type="password"
-							placeholder="Password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							className="auth-input"
-							required
-						/>
-					</div>
-
-					{isSignUp && (
-						<div className="input-group">
-							<Lock size={18} className="input-icon" />
+				<form onSubmit={handleSubmit} className={styles.form}>
+					<div className={styles.field}>
+						<label className={styles.label} htmlFor="username">
+							Username
+						</label>
+						<div className={styles.inputWrap}>
+							<User size={16} className={styles.inputIcon} />
 							<input
-								type="password"
-								placeholder="Confirm Password"
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-								className="auth-input"
+								id="username"
+								type="text"
+								autoComplete="username"
+								placeholder="Enter your username"
+								value={username}
+								onChange={(e) => setUsername(e.target.value)}
+								className={styles.input}
 								required
 							/>
 						</div>
+					</div>
+
+					<div className={styles.field}>
+						<label className={styles.label} htmlFor="password">
+							Password
+						</label>
+						<div className={styles.inputWrap}>
+							<Lock size={16} className={styles.inputIcon} />
+							<input
+								id="password"
+								type="password"
+								autoComplete={isSignUp ? "new-password" : "current-password"}
+								placeholder="Enter your password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className={styles.input}
+								required
+							/>
+						</div>
+					</div>
+
+					{isSignUp && (
+						<div className={styles.field}>
+							<label className={styles.label} htmlFor="confirm-password">
+								Confirm Password
+							</label>
+							<div className={styles.inputWrap}>
+								<Lock size={16} className={styles.inputIcon} />
+								<input
+									id="confirm-password"
+									type="password"
+									autoComplete="new-password"
+									placeholder="Confirm your password"
+									value={confirmPassword}
+									onChange={(e) => setConfirmPassword(e.target.value)}
+									className={styles.input}
+									required
+								/>
+							</div>
+						</div>
 					)}
 
-					<button type="submit" className="auth-submit">
+					<button type="submit" className={styles.submit}>
 						{isSignUp ? (
 							<>
-								<UserPlus size={18} />
+								<UserPlus size={16} />
 								Create Account
 							</>
 						) : (
 							<>
-								<ArrowRight size={18} />
+								<ArrowRight size={16} />
 								Sign In
 							</>
 						)}
 					</button>
 				</form>
 
-				<div className="auth-footer">
-					<p>
-						{isSignUp ? "Already have an account?" : "Don't have an account?"}
-						<button
-							type="button"
-							className="auth-switch"
-							onClick={() => setIsSignUp(!isSignUp)}
-						>
-							{isSignUp ? "Sign In" : "Sign Up"}
-						</button>
-					</p>
+				<div className={styles.footer}>
+					{isSignUp ? "Already have an account?" : "Don't have an account?"}
+					<button
+						type="button"
+						className={styles.switch}
+						onClick={() => setIsSignUp(!isSignUp)}
+					>
+						{isSignUp ? "Sign In" : "Sign Up"}
+					</button>
 				</div>
 			</div>
 		</div>

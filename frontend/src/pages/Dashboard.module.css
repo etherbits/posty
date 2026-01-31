@@ -1,0 +1,202 @@
+.dashboard {
+	display: flex;
+	flex-direction: column;
+	gap: 28px;
+	padding: 24px 6px 40px;
+}
+
+.eyebrow {
+	font-size: 13px;
+	color: var(--text-muted);
+	font-weight: 600;
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.sectionTitle {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--text-navy);
+}
+
+.kpiGrid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.kpiCard {
+	border-radius: 14px;
+	padding: 14px 18px 12px;
+	min-height: 78px;
+	color: var(--text-white);
+	box-shadow: 0 12px 24px rgba(79, 70, 186, 0.18);
+	background-color: var(--color-primary);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+}
+
+.kpiLabel {
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	opacity: 0.75;
+}
+
+.kpiValue {
+	margin-top: 10px;
+	display: block;
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.kpiPrimary {
+	background-image: url("/vectors/performance_card1.svg");
+}
+
+.kpiSecondary {
+	background-image: url("/vectors/performance_card2.svg");
+}
+
+.kpiTeal {
+	background-image: url("/vectors/performance_card3.svg");
+}
+
+.statsGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 22px;
+}
+
+.statCard {
+	background: var(--bg-card);
+	border-radius: 16px;
+	padding: 18px 26px;
+	box-shadow: 0 10px 22px rgba(35, 38, 61, 0.08);
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 18px;
+	min-height: 90px;
+}
+
+.statCardPrimary {
+	background: var(--color-primary);
+	border: none;
+	color: var(--text-white);
+	box-shadow: none;
+}
+
+.statInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1;
+}
+
+.statDivider {
+	width: 1px;
+	height: 54px;
+	align-self: center;
+	background: #e9ecf4;
+	flex: 0 0 1px;
+}
+
+.statDividerLight {
+	background: rgba(255, 255, 255, 0.28);
+}
+
+.statTitle {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--text-dark);
+}
+
+.statSubtitle {
+	font-size: 13px;
+	color: var(--text-muted);
+	margin-top: 0;
+}
+
+.statTitleLight {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--text-white);
+}
+
+.statSubtitleLight {
+	font-size: 13px;
+	color: rgba(255, 255, 255, 0.8);
+	margin-top: 0;
+}
+
+.progressRing {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--text-indigo);
+	background: conic-gradient(
+		var(--ring-accent, #f9896b) calc(var(--progress) * 3.6deg),
+		var(--ring-base, #eef0f6) calc(var(--progress) * 3.6deg)
+	);
+	flex: 0 0 auto;
+}
+
+.progressRing > span {
+	width: 46px;
+	height: 46px;
+	border-radius: 50%;
+	background: var(--ring-center, var(--bg-card));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.progressRing > span > span {
+	margin-left: 4px;
+	margin-top: 3px;
+}
+
+.progressRingLight {
+	--ring-accent: #f9896b;
+	--ring-base: rgba(255, 255, 255, 0.35);
+	--ring-center: #4f46ba;
+	color: var(--text-white);
+}
+
+@media (max-width: 1200px) {
+	.kpiGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.statsGrid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+@media (max-width: 900px) {
+	.dashboard {
+		padding: 18px 0 32px;
+	}
+}
+
+@media (max-width: 640px) {
+	.kpiGrid {
+		grid-template-columns: 1fr;
+	}
+}

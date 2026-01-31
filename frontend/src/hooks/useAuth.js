@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import toast from "react-hot-toast";
+import { notifyError, notifySuccess } from "../utils/toastHistory";
 
 const API_URL = "http://localhost:3000";
 
@@ -71,11 +71,11 @@ export function useAuth() {
 			localStorage.setItem("user", JSON.stringify(data.user));
 			setUser(data.user);
 			setIsAuthenticated(true);
-			toast.success("Signed in successfully!");
+			notifySuccess("Signed in successfully!");
 			return true;
 		} catch (error) {
 			console.error(error);
-			toast.error("Sign-in failed");
+			notifyError("Sign-in failed");
 			return false;
 		}
 	};
@@ -95,11 +95,11 @@ export function useAuth() {
 			localStorage.setItem("user", JSON.stringify(data.user));
 			setUser(data.user);
 			setIsAuthenticated(true);
-			toast.success("Account created successfully!");
+			notifySuccess("Account created successfully!");
 			return true;
 		} catch (error) {
 			console.error(error);
-			toast.error("Sign-up failed");
+			notifyError("Sign-up failed");
 			return false;
 		}
 	};
@@ -114,11 +114,11 @@ export function useAuth() {
 			localStorage.removeItem("user");
 			setUser(null);
 			setIsAuthenticated(false);
-			toast.success("Logged out successfully!");
+			notifySuccess("Logged out successfully!");
 			return true;
 		} catch (error) {
 			console.error("Error logging out:", error);
-			toast.error("Failed to logout");
+			notifyError("Failed to logout");
 			return false;
 		}
 	};
@@ -152,11 +152,11 @@ export function useAuth() {
 				})
 			);
 
-			toast.success("Disconnected Mastodon!");
+			notifySuccess("Disconnected Mastodon!");
 			return true;
 		} catch (err) {
 			console.error(err);
-			toast.error("Failed to disconnect Mastodon");
+			notifyError("Failed to disconnect Mastodon");
 			return false;
 		}
 	};
