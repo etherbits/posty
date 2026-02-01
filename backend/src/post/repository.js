@@ -1,9 +1,17 @@
 import db from "../lib/db/index.js";
 
-async function create(userId, content, scheduledTime, visibility, mediaIds) {
+async function create(
+	userId,
+	content,
+	scheduledTime,
+	visibility,
+	mediaIds,
+	status,
+	platforms,
+) {
 	const result = await db.query(
-		"INSERT INTO posts(user_id, content, scheduled_time, visibility, media_ids) VALUES($1, $2, $3, $4, $5) RETURNING *",
-		[userId, content, scheduledTime, visibility, mediaIds],
+		"INSERT INTO posts(user_id, content, scheduled_time, visibility, media_ids, status, platforms) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+		[userId, content, scheduledTime, visibility, mediaIds, status, platforms],
 	);
 
 	const post = result.rows[0];
@@ -101,12 +109,22 @@ async function updateOwnPost(
 	scheduledTime,
 	visibility,
 	mediaIds,
+	platforms,
 	status,
 	userId,
 ) {
 	const result = await db.query(
-		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, status = COALESCE($5, status) WHERE id = $6 AND status != 'sent' AND user_id = $7 RETURNING *",
-		[content, scheduledTime, visibility, mediaIds, status, postId, userId],
+		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, platforms = COALESCE($5, platforms), status = COALESCE($6, status) WHERE id = $7 AND status != 'sent' AND user_id = $8 RETURNING *",
+		[
+			content,
+			scheduledTime,
+			visibility,
+			mediaIds,
+			platforms,
+			status,
+			postId,
+			userId,
+		],
 	);
 	return result.rows[0];
 }
@@ -117,11 +135,20 @@ async function updatePost(
 	scheduledTime,
 	visibility,
 	mediaIds,
+	platforms,
 	status,
 ) {
 	const result = await db.query(
-		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, status = COALESCE($5, status) WHERE id = $6 AND status != 'sent' RETURNING *",
-		[content, scheduledTime, visibility, mediaIds, status, postId],
+		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, platforms = COALESCE($5, platforms), status = COALESCE($6, status) WHERE id = $7 AND status != 'sent' RETURNING *",
+		[
+			content,
+			scheduledTime,
+			visibility,
+			mediaIds,
+			platforms,
+			status,
+			postId,
+		],
 	);
 	return result.rows[0];
 }

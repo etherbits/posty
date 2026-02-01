@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User, Lock, ArrowRight, UserPlus } from "lucide-react";
+import { User, Lock } from "lucide-react";
 import styles from "./AuthForm.module.css";
 
 export function AuthForm({ onSignIn, onSignUp }) {
@@ -30,13 +30,13 @@ export function AuthForm({ onSignIn, onSignUp }) {
 		<div className={styles.page}>
 			<div className={styles.card}>
 				<div className={styles.brand}>
-					<div className={styles.logo}>P</div>
+					<img src="/vectors/logo.svg" alt="Posty" className={styles.logo} />
 					<div>
 						<h1 className={styles.title}>Welcome to Posty</h1>
 						<p className={styles.subtitle}>
 							{isSignUp
 								? "Create your account to get started"
-								: "Sign in to manage your scheduled posts"}
+								: "Sign in to manage social media"}
 						</p>
 					</div>
 				</div>
@@ -119,17 +119,7 @@ export function AuthForm({ onSignIn, onSignUp }) {
 					)}
 
 					<button type="submit" className={styles.submit}>
-						{isSignUp ? (
-							<>
-								<UserPlus size={16} />
-								Create Account
-							</>
-						) : (
-							<>
-								<ArrowRight size={16} />
-								Sign In
-							</>
-						)}
+						{isSignUp ? "Create Account" : "Sign In"}
 					</button>
 				</form>
 

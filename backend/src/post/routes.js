@@ -17,14 +17,26 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 		return res.status(400).json(error);
 	}
 
-	const { content, scheduledTime, visibility, mediaIds } = parsedBody;
+	const { content, scheduledTime, visibility, mediaIds, status, platforms } =
+		parsedBody;
+	const hasSchedule = Boolean(scheduledTime);
+	const normalizedSchedule = hasSchedule ? scheduledTime : null;
+	const normalizedPlatforms =
+		Array.isArray(platforms) && platforms.length ? platforms : ["mastodon"];
+	const nextStatus = hasSchedule
+		? status && status !== "draft"
+			? status
+			: "pending"
+		: "draft";
 
 	const post = await PostRepository.create(
 		req.user.id,
 		content,
-		scheduledTime,
+		normalizedSchedule,
 		visibility,
 		mediaIds,
+		nextStatus,
+		normalizedPlatforms,
 	);
 
 	return res.status(201).json({ postId: post.id });
@@ -119,7 +131,17 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 		return res.status(400).json(error);
 	}
 
-	const { content, scheduledTime, visibility, mediaIds, status } = parsedBody;
+	const { content, scheduledTime, visibility, mediaIds, status, platforms } =
+		parsedBody;
+	const hasSchedule = Boolean(scheduledTime);
+	const normalizedSchedule = hasSchedule ? scheduledTime : null;
+	const normalizedPlatforms =
+		Array.isArray(platforms) && platforms.length ? platforms : null;
+	const nextStatus = hasSchedule
+		? status && status !== "draft"
+			? status
+			: "pending"
+		: "draft";
 
 	const user = await UserRepository.getByUsername(req.user.username);
 
@@ -132,18 +154,20 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 			? await PostRepository.updatePost(
 					id,
 					content,
-					scheduledTime,
+					normalizedSchedule,
 					visibility,
 					mediaIds,
-					status,
+					normalizedPlatforms,
+					nextStatus,
 				)
 			: await PostRepository.updateOwnPost(
 					id,
 					content,
-					scheduledTime,
+					normalizedSchedule,
 					visibility,
 					mediaIds,
-					status,
+					normalizedPlatforms,
+					nextStatus,
 					user.id,
 				);
 

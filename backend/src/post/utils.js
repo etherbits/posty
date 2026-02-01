@@ -6,6 +6,16 @@ export async function sendDuePosts() {
 	let sentIdCount = 0;
 
 	for (const duePost of duePosts) {
+		const platforms = Array.isArray(duePost.platforms)
+			? duePost.platforms
+			: null;
+		const shouldSendToMastodon =
+			!platforms || platforms.length === 0 || platforms.includes("mastodon");
+
+		if (!shouldSendToMastodon) {
+			continue;
+		}
+
 		const sentPost = await sendPost(
 			duePost.user_id,
 			duePost.content,

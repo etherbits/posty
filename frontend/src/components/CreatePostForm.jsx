@@ -1,147 +1,214 @@
 import { useState } from "react";
-import { Send, Image, Calendar, Eye, Upload, X } from "lucide-react";
-import "./CreatePostForm.css";
+import { Image, Calendar, Eye, Upload, X } from "lucide-react";
+import styles from "./CreatePostForm.module.css";
 
-export function CreatePostForm({ onSchedule, onUploadMedia }) {
-  const [content, setContent] = useState("");
-  const [visibility, setVisibility] = useState("public");
-  const [scheduledTime, setScheduledTime] = useState("");
-  const [file, setFile] = useState(null);
-  const [mediaIds, setMediaIds] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
+export function CreatePostForm({
+	onSchedule,
+	onUploadMedia,
+	onSuccess,
+	platformOptions = [],
+	linkedPlatforms = {},
+}) {
+	const [content, setContent] = useState("");
+	const [visibility, setVisibility] = useState("public");
+	const [scheduledTime, setScheduledTime] = useState("");
+	const [file, setFile] = useState(null);
+	const [mediaIds, setMediaIds] = useState([]);
+	const [isUploading, setIsUploading] = useState(false);
+	const [platforms, setPlatforms] = useState(() => {
+		const linked = platformOptions
+			.filter((platform) => linkedPlatforms[platform.id])
+			.map((platform) => platform.id);
+		return linked.length ? linked : [];
+	});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!content || !scheduledTime) return;
+	const resetForm = () => {
+		setContent("");
+		setVisibility("public");
+		setScheduledTime("");
+		setFile(null);
+		setMediaIds([]);
+		const linked = platformOptions
+			.filter((platform) => linkedPlatforms[platform.id])
+			.map((platform) => platform.id);
+		setPlatforms(linked.length ? linked : []);
+	};
 
-    const success = await onSchedule(content, visibility, scheduledTime, mediaIds);
-    if (success) {
-      setContent("");
-      setScheduledTime("");
-      setMediaIds([]);
-      setFile(null);
-    }
-  };
+	const togglePlatform = (platformId) => {
+		setPlatforms((prev) => {
+			const isSelected = prev.includes(platformId);
+			if (isSelected && prev.length === 1) return prev;
+			return isSelected
+				? prev.filter((id) => id !== platformId)
+				: [...prev, platformId];
+		});
+	};
 
-  const handleUpload = async () => {
-    if (!file) return;
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+		if (!content.trim()) return;
 
-    setIsUploading(true);
-    const mediaId = await onUploadMedia(file);
-    if (mediaId) {
-      setMediaIds((ids) => [...ids, mediaId]);
-      setFile(null);
-    }
-    setIsUploading(false);
-  };
+		const success = await onSchedule(
+			content.trim(),
+			visibility,
+			scheduledTime || null,
+			mediaIds,
+			platforms,
+		);
 
-  const removeMedia = (index) => {
-    setMediaIds((ids) => ids.filter((_, i) => i !== index));
-  };
+		if (success) {
+			resetForm();
+			if (onSuccess) onSuccess();
+		}
+	};
 
-  return (
-    <div className="create-post-form">
-      <div className="form-header">
-        <h3 className="form-title">Schedule New Post</h3>
-        <p className="form-subtitle">Create and schedule your posts!</p>
-      </div>
+	const handleUpload = async () => {
+		if (!file) return;
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's on your mind?"
-            rows={4}
-            className="form-textarea"
-          />
-          <span className="char-count">{content.length} characters</span>
-        </div>
+		setIsUploading(true);
+		const mediaId = await onUploadMedia(file);
+		if (mediaId) {
+			setMediaIds((ids) => [...ids, mediaId]);
+			setFile(null);
+		}
+		setIsUploading(false);
+	};
 
-        <div className="form-row">
-          <div className="form-group">
-            <label className="form-label">
-              <Eye size={14} />
-              Visibility
-            </label>
-            <select
-              value={visibility}
-              onChange={(e) => setVisibility(e.target.value)}
-              className="form-select"
-            >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </div>
+	const removeMedia = (index) => {
+		setMediaIds((ids) => ids.filter((_, i) => i !== index));
+	};
 
-          <div className="form-group">
-            <label className="form-label">
-              <Calendar size={14} />
-              Schedule Time
-            </label>
-            <input
-              type="datetime-local"
-              value={scheduledTime}
-              onChange={(e) => setScheduledTime(e.target.value)}
-              className="form-input"
-            />
-          </div>
-        </div>
+	return (
+		<form onSubmit={handleSubmit} className={styles.form}>
+			<div className={styles.field}>
+				<label className={styles.label}>Post Content</label>
+				<textarea
+					value={content}
+					onChange={(e) => setContent(e.target.value)}
+					placeholder="Write your post here..."
+					rows={4}
+					className={styles.textarea}
+				/>
+				<span className={styles.helper}>{content.length} characters</span>
+			</div>
 
-        <div className="media-section">
-          <label className="form-label">
-            <Image size={14} />
-            Media
-          </label>
-          <div className="media-upload">
-            <input
-              type="file"
-              id="media-file"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="file-input"
-              accept="image/*,video/*"
-            />
-            <label htmlFor="media-file" className="file-label">
-              <Upload size={16} />
-              <span>{file ? file.name : "Choose file..."}</span>
-            </label>
-            <button
-              type="button"
-              onClick={handleUpload}
-              disabled={!file || isUploading}
-              className="btn btn-upload"
-            >
-              {isUploading ? "Uploading..." : "Upload"}
-            </button>
-          </div>
+			<div className={styles.field}>
+				<label className={styles.label}>Social Platforms</label>
+				<div className={styles.platforms}>
+					{platformOptions.map((platform) => {
+						const isLinked = linkedPlatforms[platform.id];
+						const isSelected = platforms.includes(platform.id);
+						return (
+							<button
+								key={platform.id}
+								type="button"
+								className={`${styles.platformButton} ${
+									isSelected ? styles.platformActive : ""
+								} ${!isLinked ? styles.platformDisabled : ""}`}
+								aria-pressed={isSelected}
+								disabled={!isLinked}
+								onClick={() => togglePlatform(platform.id)}
+							>
+								<span className={styles.platformIcon}>{platform.shortLabel}</span>
+								<span>{platform.label}</span>
+							</button>
+						);
+					})}
+				</div>
+				{platforms.length === 0 && (
+					<p className={styles.platformHint}>
+						Connect at least one social account to post.
+					</p>
+				)}
+			</div>
 
-          {mediaIds.length > 0 && (
-            <div className="media-list">
-              {mediaIds.map((id, index) => (
-                <div key={id} className="media-item">
-                  <span>Media #{index + 1}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeMedia(index)}
-                    className="media-remove"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+			<div className={styles.row}>
+				<div className={styles.field}>
+					<label className={styles.label}>
+						<Eye size={14} />
+						Visibility
+					</label>
+					<select
+						value={visibility}
+						onChange={(e) => setVisibility(e.target.value)}
+						className={styles.input}
+					>
+						<option value="public">Public</option>
+						<option value="private">Private</option>
+					</select>
+				</div>
 
-        <button
-          type="submit"
-          disabled={!content || !scheduledTime}
-          className="btn btn-submit"
-        >
-          <Send size={16} />
-          Schedule Post
-        </button>
-      </form>
-    </div>
-  );
+				<div className={styles.field}>
+					<label className={styles.label}>
+						<Calendar size={14} />
+						Schedule (optional)
+					</label>
+					<input
+						type="datetime-local"
+						value={scheduledTime}
+						onChange={(e) => setScheduledTime(e.target.value)}
+						className={styles.input}
+					/>
+				</div>
+			</div>
+
+			<div className={styles.field}>
+				<label className={styles.label}>
+					<Image size={14} />
+					Media
+				</label>
+				<div className={styles.mediaRow}>
+					<input
+						type="file"
+						id="media-file"
+						onChange={(e) => setFile(e.target.files[0])}
+						className={styles.fileInput}
+						accept="image/*,video/*"
+					/>
+					<label htmlFor="media-file" className={styles.fileLabel}>
+						<Upload size={16} />
+						<span>{file ? file.name : "Choose file"}</span>
+					</label>
+					<button
+						type="button"
+						onClick={handleUpload}
+						disabled={!file || isUploading}
+						className={styles.uploadButton}
+					>
+						{isUploading ? "Uploading..." : "Upload"}
+					</button>
+				</div>
+
+				{mediaIds.length > 0 && (
+					<div className={styles.mediaList}>
+						{mediaIds.map((id, index) => (
+							<div key={id} className={styles.mediaItem}>
+								<span>Media #{index + 1}</span>
+								<button
+									type="button"
+									onClick={() => removeMedia(index)}
+									className={styles.mediaRemove}
+								>
+									<X size={14} />
+								</button>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+
+			<div className={styles.actions}>
+				<button type="button" className={styles.resetButton} onClick={resetForm}>
+					Reset
+				</button>
+				<button
+					type="submit"
+					className={styles.submitButton}
+					disabled={!content.trim() || platforms.length === 0}
+				>
+					Create Post
+				</button>
+			</div>
+		</form>
+	);
 }

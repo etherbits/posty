@@ -1,152 +1,254 @@
-import { Calendar, Eye, Heart, MessageCircle, Edit2, Trash2, X, Check, Link } from "lucide-react";
-import "./PostCard.css";
+import {
+	Calendar,
+	Eye,
+	Heart,
+	MessageCircle,
+	Edit2,
+	Trash2,
+	X,
+	Check,
+	Link,
+	Repeat,
+} from "lucide-react";
+import styles from "./PostCard.module.css";
+
+const statusLabels = {
+	draft: "Draft",
+	pending: "Pending",
+	sent: "Sent",
+	canceled: "Canceled",
+};
 
 export function PostCard({
-  post,
-  isEditing,
-  editForm,
-  setEditForm,
-  onStartEdit,
-  onSaveEdit,
-  onCancelEdit,
-  onToggleStatus,
-  onDelete,
-  isAdmin,
+	post,
+	isEditing,
+	editForm,
+	setEditForm,
+	onStartEdit,
+	onSaveEdit,
+	onCancelEdit,
+	onToggleStatus,
+	onDelete,
+	isAdmin,
+	platformOptions = [],
+	linkedPlatforms = {},
 }) {
-  const statusColors = {
-    sent: "sent",
-    pending: "pending",
-    canceled: "canceled",
-  };
+	const resolvedStatus =
+		post.status === "draft" || !post.scheduled_time
+			? "draft"
+			: post.status || "pending";
+	const scheduledLabel = post.scheduled_time
+		? new Date(post.scheduled_time).toLocaleString()
+		: "Not scheduled";
 
-  if (isEditing) {
-    return (
-      <div className="post-card editing">
-        <div className="edit-form">
-          <textarea
-            value={editForm.content}
-            onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-            placeholder="Post content..."
-            rows={3}
-            className="edit-textarea"
-          />
+	const platforms = post.platforms?.length ? post.platforms : ["mastodon"];
 
-          <div className="edit-row">
-            <label className="edit-label">
-              <Eye size={14} />
-              Visibility
-            </label>
-            <select
-              value={editForm.visibility}
-              onChange={(e) => setEditForm({ ...editForm, visibility: e.target.value })}
-              className="edit-select"
-            >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-            </select>
-          </div>
+	if (isEditing) {
+		const showStatusToggle = Boolean(editForm.scheduledTime);
+		const handleScheduleChange = (event) => {
+			const value = event.target.value;
+			setEditForm((prev) => ({
+				...prev,
+				scheduledTime: value,
+				status: value ? (prev.status === "draft" ? "pending" : prev.status) : "draft",
+			}));
+		};
 
-          <div className="edit-row">
-            <label className="edit-label">
-              <Calendar size={14} />
-              Scheduled Time
-            </label>
-            <input
-              type="datetime-local"
-              value={editForm.scheduledTime}
-              onChange={(e) => setEditForm({ ...editForm, scheduledTime: e.target.value })}
-              className="edit-input"
-            />
-          </div>
+		const togglePlatform = (platformId) => {
+			setEditForm((prev) => {
+				const current = prev.platforms || [];
+				const isSelected = current.includes(platformId);
+				if (isSelected && current.length === 1) return prev;
+				return {
+					...prev,
+					platforms: isSelected
+						? current.filter((id) => id !== platformId)
+						: [...current, platformId],
+				};
+			});
+		};
 
-          <div className="edit-row">
-            <label className="edit-label">Status</label>
-            <button
-              onClick={onToggleStatus}
-              className={`status-toggle ${editForm.status}`}
-            >
-              {editForm.status === "pending" ? "Pending" : "Canceled"}
-            </button>
-          </div>
+		return (
+			<div className={`${styles.card} ${styles.editing}`}>
+				<div className={styles.editForm}>
+					<textarea
+						value={editForm.content}
+						onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+						placeholder="Post content..."
+						rows={3}
+						className={styles.editTextarea}
+					/>
 
-          <div className="edit-actions">
-            <button className="btn btn-primary" onClick={() => onSaveEdit(post.id)}>
-              <Check size={14} />
-              Save
-            </button>
-            <button className="btn btn-secondary" onClick={onCancelEdit}>
-              <X size={14} />
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+					<div className={styles.editRow}>
+						<label className={styles.editLabel}>
+							<Eye size={14} />
+							Visibility
+						</label>
+						<select
+							value={editForm.visibility}
+							onChange={(e) =>
+								setEditForm({ ...editForm, visibility: e.target.value })
+							}
+							className={styles.editInput}
+						>
+							<option value="public">Public</option>
+							<option value="private">Private</option>
+						</select>
+					</div>
 
-  return (
-    <div className={`post-card ${statusColors[post.status]}`}>
-      <div className="post-header">
-        {isAdmin && post.username && (
-          <span className="post-author">@{post.username}</span>
-        )}
-        <span className={`post-status ${post.status}`}>{post.status}</span>
-      </div>
+					<div className={styles.editRow}>
+						<label className={styles.editLabel}>
+							<Calendar size={14} />
+							Schedule
+						</label>
+						<input
+							type="datetime-local"
+							value={editForm.scheduledTime}
+							onChange={handleScheduleChange}
+							className={styles.editInput}
+						/>
+					</div>
 
-      <p className="post-content">{post.content}</p>
+					<div className={styles.editRow}>
+						<label className={styles.editLabel}>Platforms</label>
+						<div className={styles.platforms}>
+							{platformOptions.map((platform) => {
+								const isLinked = linkedPlatforms[platform.id];
+								const selected = editForm.platforms?.includes(platform.id);
+								return (
+									<button
+										key={platform.id}
+										type="button"
+										disabled={!isLinked}
+										aria-pressed={selected}
+										className={`${styles.platformButton} ${
+											selected ? styles.platformActive : ""
+										} ${!isLinked ? styles.platformDisabled : ""}`}
+										onClick={() => togglePlatform(platform.id)}
+									>
+										<span className={styles.platformIcon}>
+											{platform.shortLabel}
+										</span>
+										{platform.label}
+									</button>
+								);
+							})}
+						</div>
+					</div>
 
-      <div className="post-meta">
-        <div className="meta-item">
-          <Calendar size={14} />
-          <span>{new Date(post.scheduled_time).toLocaleString()}</span>
-        </div>
-        <div className="meta-item">
-          <Eye size={14} />
-          <span>{post.visibility}</span>
-        </div>
-      </div>
+					{showStatusToggle && (
+						<div className={styles.editRow}>
+							<label className={styles.editLabel}>Status</label>
+							<button
+								type="button"
+								onClick={onToggleStatus}
+								className={`${styles.statusToggle} ${styles[editForm.status]}`}
+							>
+								{editForm.status === "canceled" ? "Canceled" : "Pending"}
+							</button>
+						</div>
+					)}
 
-      {(post.replies_count !== undefined || post.favorites_count !== undefined) && (
-        <div className="post-stats">
-          {post.replies_count !== undefined && (
-            <div className="stat-item">
-              <MessageCircle size={14} />
-              <span>{post.replies_count}</span>
-            </div>
-          )}
-          {post.favorites_count !== undefined && (
-            <div className="stat-item">
-              <Heart size={14} />
-              <span>{post.favorites_count}</span>
-            </div>
-          )}
-        </div>
-      )}
+					<div className={styles.editActions}>
+						<button className={styles.primaryAction} onClick={() => onSaveEdit(post.id)}>
+							<Check size={14} />
+							Save
+						</button>
+						<button className={styles.secondaryAction} onClick={onCancelEdit}>
+							<X size={14} />
+							Cancel
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-      {post.url && (
-        <a href={post.url} target="_blank" rel="noopener noreferrer" className="post-link">
-          <Link size={14} />
-          <span>View on Mastodon</span>
-        </a>
-      )}
+	return (
+		<div className={`${styles.card} ${styles[resolvedStatus]}`}>
+			<div className={styles.header}>
+				{isAdmin && post.username && (
+					<span className={styles.author}>@{post.username}</span>
+				)}
+				<span className={`${styles.status} ${styles[resolvedStatus]}`}>
+					{statusLabels[resolvedStatus]}
+				</span>
+			</div>
 
-      <div className="post-actions">
-        <button
-          className="btn btn-icon edit"
-          onClick={() => onStartEdit(post)}
-          disabled={post.status === "sent"}
-          title={post.status === "sent" ? "Sent posts cannot be edited" : "Edit post"}
-        >
-          <Edit2 size={16} />
-        </button>
-        <button
-          className="btn btn-icon delete"
-          onClick={() => onDelete(post.id)}
-          title="Delete post"
-        >
-          <Trash2 size={16} />
-        </button>
-      </div>
-    </div>
-  );
+			<p className={styles.content}>{post.content}</p>
+
+			<div className={styles.meta}>
+				<div className={styles.metaItem}>
+					<Calendar size={14} />
+					<span>{scheduledLabel}</span>
+				</div>
+				<div className={styles.metaItem}>
+					<Eye size={14} />
+					<span>{post.visibility}</span>
+				</div>
+			</div>
+
+			{platformOptions.some((platform) => platforms.includes(platform.id)) && (
+				<div className={styles.platforms}>
+					{platformOptions
+						.filter((platform) => platforms.includes(platform.id))
+						.map((platform) => (
+							<button
+								key={platform.id}
+								type="button"
+								disabled={!linkedPlatforms[platform.id]}
+								className={`${styles.platformButton} ${styles.platformActive} ${
+									!linkedPlatforms[platform.id] ? styles.platformDisabled : ""
+								}`}
+							>
+								<span className={styles.platformIcon}>{platform.shortLabel}</span>
+								{platform.label}
+							</button>
+						))}
+				</div>
+			)}
+
+			<div className={styles.stats}>
+				<div className={styles.statItem}>
+					<MessageCircle size={14} />
+					<span>{post.replies_count || 0}</span>
+				</div>
+				<div className={styles.statItem}>
+					<Heart size={14} />
+					<span>{post.favorites_count || 0}</span>
+				</div>
+				<div className={styles.statItem}>
+					<Repeat size={14} />
+					<span>{post.reposts_count ?? post.reblogs_count ?? 0}</span>
+				</div>
+			</div>
+
+			{post.url && (
+				<a href={post.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
+					<Link size={14} />
+					<span>View on Mastodon</span>
+				</a>
+			)}
+
+			<div className={styles.actions}>
+				<button
+					type="button"
+					className={styles.iconButton}
+					onClick={() => onStartEdit(post)}
+					disabled={post.status === "sent"}
+					title={post.status === "sent" ? "Sent posts cannot be edited" : "Edit post"}
+				>
+					<Edit2 size={16} />
+				</button>
+				<button
+					type="button"
+					className={styles.iconButton}
+					onClick={() => onDelete(post.id)}
+					title="Delete post"
+				>
+					<Trash2 size={16} />
+				</button>
+			</div>
+		</div>
+	);
 }

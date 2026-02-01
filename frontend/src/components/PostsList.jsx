@@ -7,7 +7,7 @@ import {
 	ChevronRight,
 } from "lucide-react";
 import { PostCard } from "./PostCard";
-import "./PostsList.css";
+import styles from "./PostsList.module.css";
 
 export function PostsList({
 	posts,
@@ -27,22 +27,21 @@ export function PostsList({
 	isAdmin,
 	pollInterval = 10,
 	timerKey = 0,
+	platformOptions = [],
+	linkedPlatforms = {},
 }) {
 	const [filter, setFilter] = useState("all");
 	const [countdown, setCountdown] = useState(pollInterval);
 	const timerKeyRef = useRef(timerKey);
 	const prevTimerKeyRef = useRef(timerKey);
 
-	// Keep timerKeyRef in sync with prop
 	useEffect(() => {
 		timerKeyRef.current = timerKey;
 	}, [timerKey]);
 
-	// Countdown timer effect
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setCountdown((prev) => {
-				// Reset if timerKey changed (poll happened)
 				if (prevTimerKeyRef.current !== timerKeyRef.current) {
 					prevTimerKeyRef.current = timerKeyRef.current;
 					return pollInterval;
@@ -61,19 +60,34 @@ export function PostsList({
 		onRefresh();
 	};
 
+	const resolveStatus = (post) => {
+		if (post.status === "draft" || !post.scheduled_time) return "draft";
+		return post.status || "pending";
+	};
+
+	const statusCounts = posts.reduce(
+		(acc, post) => {
+			const status = resolveStatus(post);
+			acc.all += 1;
+			acc[status] = (acc[status] || 0) + 1;
+			return acc;
+		},
+		{ all: 0, draft: 0, pending: 0, sent: 0, canceled: 0 },
+	);
+
 	const filteredPosts = posts.filter((post) => {
-		const matchesFilter = filter === "all" || post.status === filter;
-		return matchesFilter;
+		const status = resolveStatus(post);
+		return filter === "all" ? true : status === filter;
 	});
 
 	const filterOptions = [
 		{ value: "all", label: "All" },
+		{ value: "draft", label: "Draft" },
 		{ value: "pending", label: "Pending" },
 		{ value: "sent", label: "Sent" },
 		{ value: "canceled", label: "Canceled" },
 	];
 
-	// Generate page numbers to display
 	const getPageNumbers = () => {
 		const { page, totalPages } = pagination;
 		const pages = [];
@@ -105,60 +119,58 @@ export function PostsList({
 	};
 
 	return (
-		<div className="posts-list">
-			<div className="posts-header">
-				<div className="posts-title-section">
-					<h3 className="posts-title">Recent Posts</h3>
-					<p className="posts-subtitle">
+		<div className={styles.card}>
+			<div className={styles.header}>
+				<div>
+					<h3 className={styles.title}>All Posts</h3>
+					<p className={styles.subtitle}>
 						{filteredPosts.length} of {posts.length} on this page •{" "}
 						{pagination.total} total
 					</p>
 				</div>
-
-				<div className="posts-actions">
-					<div className="refresh-group">
-						<button className="btn-refresh" onClick={handleRefresh}>
-							<RefreshCw size={16} />
-							Refresh
-						</button>
-						<div className="poll-timer">
-							<Clock size={12} />
-							<span>{countdown}s</span>
-						</div>
+				<div className={styles.actions}>
+					<div className={styles.timer}>
+						<Clock size={12} />
+						<span>{countdown}s</span>
 					</div>
+					<button className={styles.refresh} onClick={handleRefresh}>
+						<RefreshCw size={16} />
+						Refresh
+					</button>
 				</div>
 			</div>
 
-			<div className="filter-tabs">
+			<div className={styles.filters}>
 				{filterOptions.map((option) => (
 					<button
 						key={option.value}
-						className={`filter-tab ${filter === option.value ? "active" : ""}`}
+						type="button"
+						className={`${styles.filter} ${
+							filter === option.value ? styles.filterActive : ""
+						}`}
 						onClick={() => setFilter(option.value)}
 					>
 						{option.label}
-						<span className="tab-count">
-							{option.value === "all"
-								? posts.length
-								: posts.filter((p) => p.status === option.value).length}
+						<span className={styles.filterCount}>
+							{statusCounts[option.value] ?? 0}
 						</span>
 					</button>
 				))}
 			</div>
 
-			<div className="posts-container">
+			<div className={styles.list}>
 				{filteredPosts.length === 0 ? (
-					<div className="empty-state">
-						<FileText size={48} className="empty-icon" />
+					<div className={styles.emptyState}>
+						<FileText size={40} className={styles.emptyIcon} />
 						<h4>No posts found</h4>
 						<p>
 							{posts.length === 0
-								? "Schedule a post to get started!"
-								: "Try adjusting your filters"}
+								? "Create a new post to get started."
+								: "Try adjusting your filters."}
 						</p>
 					</div>
 				) : (
-					<div className="posts-grid">
+					<div className={styles.grid}>
 						{filteredPosts.map((post) => (
 							<PostCard
 								key={post.id}
@@ -172,6 +184,8 @@ export function PostsList({
 								onToggleStatus={onToggleStatus}
 								onDelete={onDelete}
 								isAdmin={isAdmin}
+								platformOptions={platformOptions}
+								linkedPlatforms={linkedPlatforms}
 							/>
 						))}
 					</div>
@@ -179,26 +193,27 @@ export function PostsList({
 			</div>
 
 			{pagination.totalPages > 1 && (
-				<div className="pagination">
+				<div className={styles.pagination}>
 					<button
-						className="pagination-btn"
+						className={styles.pageButton}
 						onClick={onPrevPage}
 						disabled={pagination.page === 1}
 					>
 						<ChevronLeft size={16} />
 						Prev
 					</button>
-
-					<div className="pagination-pages">
+					<div className={styles.pageNumbers}>
 						{getPageNumbers().map((pageNum, index) =>
 							pageNum === "..." ? (
-								<span key={`ellipsis-${index}`} className="pagination-ellipsis">
+								<span key={`ellipsis-${index}`} className={styles.ellipsis}>
 									...
 								</span>
 							) : (
 								<button
 									key={pageNum}
-									className={`pagination-page ${pagination.page === pageNum ? "active" : ""}`}
+									className={`${styles.pageNumber} ${
+										pagination.page === pageNum ? styles.pageNumberActive : ""
+									}`}
 									onClick={() => onGoToPage(pageNum)}
 								>
 									{pageNum}
@@ -206,9 +221,8 @@ export function PostsList({
 							),
 						)}
 					</div>
-
 					<button
-						className="pagination-btn"
+						className={styles.pageButton}
 						onClick={onNextPage}
 						disabled={pagination.page === pagination.totalPages}
 					>
@@ -219,7 +233,7 @@ export function PostsList({
 			)}
 
 			{pagination.totalPages > 0 && (
-				<div className="pagination-info">
+				<div className={styles.pageInfo}>
 					Page {pagination.page} of {pagination.totalPages} • Showing{" "}
 					{(pagination.page - 1) * pagination.limit + 1} to{" "}
 					{Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}

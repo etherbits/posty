@@ -8,6 +8,7 @@ import { usePosts } from "./hooks/usePosts";
 import { AuthForm } from "./components/AuthForm";
 import { AppShell } from "./layouts/AppShell";
 import { Dashboard } from "./pages/Dashboard";
+import { Posts } from "./pages/Posts";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { replayToasts } from "./utils/toastHistory";
 import styles from "./App.module.css";
@@ -25,8 +26,27 @@ function App() {
 		canViewPosts,
 	} = useAuth();
 
-	const { posts, fetchPosts, refreshCurrentPage, calculateStats, clearPosts } =
-		usePosts();
+	const {
+		posts,
+		pagination,
+		editingPostId,
+		editForm,
+		setEditForm,
+		fetchPosts,
+		goToPage,
+		nextPage,
+		prevPage,
+		refreshCurrentPage,
+		schedulePost,
+		uploadMedia,
+		startEdit,
+		saveEdit,
+		cancelEdit,
+		toggleEditStatus,
+		deletePost,
+		calculateStats,
+		clearPosts,
+	} = usePosts();
 
 	const didFetchRef = useRef(false);
 
@@ -72,6 +92,7 @@ function App() {
 	}
 
 	const stats = calculateStats();
+	const isAdmin = user?.role === "admin";
 
 	return (
 		<>
@@ -89,7 +110,29 @@ function App() {
 					/>
 					<Route
 						path="/posts"
-						element={<PlaceholderPage title="Posts" />}
+						element={
+							<Posts
+								posts={canViewPosts ? posts : []}
+								pagination={pagination}
+								editingPostId={editingPostId}
+								editForm={editForm}
+								setEditForm={setEditForm}
+								onStartEdit={startEdit}
+								onSaveEdit={saveEdit}
+								onCancelEdit={cancelEdit}
+								onToggleStatus={toggleEditStatus}
+								onDelete={deletePost}
+								onRefresh={refreshCurrentPage}
+								onGoToPage={goToPage}
+								onNextPage={nextPage}
+								onPrevPage={prevPage}
+								onSchedule={schedulePost}
+								onUploadMedia={uploadMedia}
+								isAdmin={isAdmin}
+								user={user}
+								pollInterval={POLL_INTERVAL_SECONDS}
+							/>
+						}
 					/>
 					<Route
 						path="/settings"

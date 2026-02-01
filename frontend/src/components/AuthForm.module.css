@@ -27,14 +27,7 @@
 .logo {
   width: 52px;
   height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(140deg, var(--color-primary), #6b62e6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-white);
-  font-weight: 700;
-  font-size: 20px;
+  object-fit: contain;
 }
 
 .title {

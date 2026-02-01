@@ -25,6 +25,7 @@ export function usePosts() {
 		scheduledTime: "",
 		mediaIds: [],
 		status: "",
+		platforms: ["mastodon"],
 	});
 
 	// Lock to prevent duplicate concurrent fetches
@@ -91,9 +92,20 @@ export function usePosts() {
 		fetchPosts(pagination.page);
 	}, [fetchPosts, pagination.page]);
 
-	const schedulePost = async (content, visibility, scheduledTime, mediaIds) => {
+	const schedulePost = async (
+		content,
+		visibility,
+		scheduledTime,
+		mediaIds,
+		platforms,
+	) => {
 		try {
-			const isoScheduledTime = new Date(scheduledTime).toISOString();
+			const hasSchedule = Boolean(scheduledTime);
+			const isoScheduledTime = hasSchedule
+				? new Date(scheduledTime).toISOString()
+				: null;
+			const status = hasSchedule ? "pending" : "draft";
+			const normalizedPlatforms = platforms?.length ? platforms : undefined;
 
 			const response = await fetch(`${API_URL}/post/schedule`, {
 				method: "POST",
@@ -104,6 +116,8 @@ export function usePosts() {
 					visibility,
 					scheduledTime: isoScheduledTime,
 					mediaIds,
+					status,
+					platforms: normalizedPlatforms,
 				}),
 			});
 
@@ -160,18 +174,39 @@ export function usePosts() {
 			localScheduledTime = `${year}-${month}-${day}T${hours}:${minutes}`;
 		}
 
+		const derivedStatus =
+			post.status === "draft" || !post.scheduled_time
+				? "draft"
+				: post.status || "pending";
+		const derivedPlatforms = post.platforms?.length
+			? post.platforms
+			: ["mastodon"];
+
 		setEditForm({
 			content: post.content,
 			visibility: post.visibility,
 			scheduledTime: localScheduledTime,
 			mediaIds: post.media_ids || [],
-			status: post.status,
+			status: derivedStatus,
+			platforms: derivedPlatforms,
 		});
 	};
 
 	const saveEdit = async (postId) => {
 		try {
-			const isoScheduledTime = new Date(editForm.scheduledTime).toISOString();
+			const hasSchedule = Boolean(editForm.scheduledTime);
+			const isoScheduledTime = hasSchedule
+				? new Date(editForm.scheduledTime).toISOString()
+				: null;
+			let status = editForm.status;
+			if (!hasSchedule) {
+				status = "draft";
+			} else if (!status || status === "draft") {
+				status = "pending";
+			}
+			const normalizedPlatforms = editForm.platforms?.length
+				? editForm.platforms
+				: undefined;
 
 			const response = await fetch(`${API_URL}/post/${postId}`, {
 				method: "PATCH",
@@ -182,7 +217,8 @@ export function usePosts() {
 					visibility: editForm.visibility,
 					scheduledTime: isoScheduledTime,
 					mediaIds: editForm.mediaIds,
-					status: editForm.status,
+					status,
+					platforms: normalizedPlatforms,
 				}),
 			});
 
@@ -211,14 +247,20 @@ export function usePosts() {
 			scheduledTime: "",
 			mediaIds: [],
 			status: "",
+			platforms: ["mastodon"],
 		});
 	};
 
 	const toggleEditStatus = () => {
-		setEditForm((prev) => ({
-			...prev,
-			status: prev.status === "pending" ? "canceled" : "pending",
-		}));
+		setEditForm((prev) => {
+			if (prev.status === "draft") {
+				return { ...prev, status: "pending" };
+			}
+			return {
+				...prev,
+				status: prev.status === "pending" ? "canceled" : "pending",
+			};
+		});
 	};
 
 	const deletePost = async (postId) => {

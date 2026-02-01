@@ -28,6 +28,7 @@ async function createTables() {
         visibility TEXT NOT NULL DEFAULT 'private',
         url TEXT,
         media_ids TEXT[],
+        platforms TEXT[],
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
   `;
