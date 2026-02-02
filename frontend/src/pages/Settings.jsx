@@ -205,7 +205,7 @@ export function Settings({
 						</div>
 						<button
 							type="button"
-							className={styles.secondaryButton}
+							className={`${styles.accountButton} ${styles.secondaryButton}`}
 							onClick={handleBlueskyAction}
 							disabled={isWorking || !blueskyEnabled}
 						>
