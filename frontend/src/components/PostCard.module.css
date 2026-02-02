@@ -143,6 +143,12 @@
   font-weight: 700;
 }
 
+.platformIcon img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+}
+
 .statItem {
   display: inline-flex;
   align-items: center;

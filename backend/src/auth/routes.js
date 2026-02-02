@@ -5,6 +5,7 @@ import AuthParser from "./schemas.js";
 import { authMiddleware, signJwt } from "./utils.js";
 import UserRepository from "../user/repository.js";
 import { extractProfileData } from "../user/utils.js";
+import SettingsRepository from "../settings/repository.js";
 
 const router = Router();
 
@@ -56,6 +57,13 @@ router.post("/sign-in", async (req, res) => {
 });
 
 router.get("/oauth/mastodon", authMiddleware, async (req, res) => {
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.mastodonEnabled) {
+		return res
+			.status(400)
+			.json({ error: "Mastodon integration is disabled" });
+	}
+
 	const state = mastodon.generateState();
 
 	res.cookie("oauth_state", state, { httpOnly: true, sameSite: "lax" });
@@ -71,6 +79,11 @@ router.get("/oauth/mastodon/callback", authMiddleware, async (req, res) => {
 	const { code, state } = req.query;
 	const storedState = req.cookies.oauth_state;
 	const userId = req.cookies.user_id;
+
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.mastodonEnabled) {
+		return res.status(400).send("Mastodon integration is disabled");
+	}
 
 	if (!userId) return res.status(401).send("User session lost");
 	if (!code || !state || state !== storedState)

@@ -1,0 +1,270 @@
+.page {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	padding: 10px 0 40px;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.title {
+	font-size: 22px;
+	font-weight: 700;
+	color: var(--text-navy);
+}
+
+.subtitle {
+	margin-top: 6px;
+	font-size: 13px;
+	color: var(--text-muted);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.sectionTitle {
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--text-navy);
+}
+
+.toggleGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.toggleCard {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 18px 20px;
+	border-radius: 16px;
+	background: var(--bg-card);
+	box-shadow: 0 12px 24px rgba(33, 36, 52, 0.08);
+}
+
+.toggleTitle {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--text-dark);
+}
+
+.toggleSubtitle {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 46px;
+	height: 26px;
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #e4e7f0;
+	transition: 0.2s ease;
+	border-radius: 999px;
+}
+
+.slider::before {
+	position: absolute;
+	content: "";
+	height: 20px;
+	width: 20px;
+	left: 3px;
+	bottom: 3px;
+	background-color: #ffffff;
+	transition: 0.2s ease;
+	border-radius: 50%;
+	box-shadow: 0 6px 10px rgba(33, 36, 52, 0.16);
+}
+
+.switch input:checked + .slider {
+	background-color: var(--color-primary);
+}
+
+.switch input:checked + .slider::before {
+	transform: translateX(20px);
+}
+
+.switch input:disabled + .slider {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.cardsGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+}
+
+.accountCard {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 18px 20px;
+	border-radius: 16px;
+	background: var(--bg-card);
+	box-shadow: 0 12px 24px rgba(33, 36, 52, 0.08);
+}
+
+.accountDisabled {
+	opacity: 0.55;
+}
+
+.accountIcon,
+.accountIconAlt {
+	width: 44px;
+	height: 44px;
+	border-radius: 12px;
+	display: grid;
+	place-items: center;
+	font-weight: 700;
+	font-size: 16px;
+	color: var(--text-white);
+}
+
+.accountIconInner {
+	width: 24px;
+	height: 24px;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: contain;
+}
+
+.accountIcon {
+	background: linear-gradient(145deg, #4f46bae0, #6a5cffa0);
+}
+
+.accountIconAlt {
+	background: linear-gradient(145deg, #1185fe, #62b0ffa0);
+}
+
+.accountIconSymbol {
+	width: 22px;
+	height: 22px;
+	background: #ffffff;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	-webkit-mask-size: contain;
+}
+
+.accountInfo {
+	flex: 1;
+}
+
+.accountName {
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--text-dark);
+}
+
+.accountStatus {
+	margin-top: 4px;
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.accountButton {
+	padding: 8px 14px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.primaryButton {
+	background: var(--color-primary);
+	color: var(--text-white);
+}
+
+.secondaryButton {
+	background: #f3f4f9;
+	color: var(--text-indigo);
+}
+
+.targetsCard {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 16px;
+	padding: 20px 22px;
+	border-radius: 16px;
+	background: var(--bg-card);
+	box-shadow: 0 12px 24px rgba(33, 36, 52, 0.08);
+}
+
+.targetField {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.targetLabel {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--text-indigo);
+}
+
+.targetInputWrap {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border-radius: 12px;
+	border: 1px solid #e4e7f0;
+	background: #f8f9fc;
+}
+
+.targetInput {
+	flex: 1;
+	border: none;
+	background: transparent;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-dark);
+}
+
+.targetInput:focus {
+	outline: none;
+}
+
+.targetUnit {
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+	.cardsGrid,
+	.targetsCard,
+	.toggleGrid {
+		grid-template-columns: 1fr;
+	}
+}

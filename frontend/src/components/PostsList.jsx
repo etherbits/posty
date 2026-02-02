@@ -29,6 +29,7 @@ export function PostsList({
 	timerKey = 0,
 	platformOptions = [],
 	linkedPlatforms = {},
+	canCreate = true,
 }) {
 	const [filter, setFilter] = useState("all");
 	const [countdown, setCountdown] = useState(pollInterval);
@@ -165,7 +166,9 @@ export function PostsList({
 						<h4>No posts found</h4>
 						<p>
 							{posts.length === 0
-								? "Create a new post to get started."
+								? canCreate
+									? "Create a new post to get started."
+									: "Posts will appear here once your team starts publishing."
 								: "Try adjusting your filters."}
 						</p>
 					</div>

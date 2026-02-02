@@ -5,6 +5,7 @@ import UserRepository from "../user/repository.js";
 import PostRepository from "./repository.js";
 import PostParser from "./schemas.js";
 import { enrichPosts } from "./utils.js";
+import SettingsRepository from "../settings/repository.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -19,10 +20,35 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 
 	const { content, scheduledTime, visibility, mediaIds, status, platforms } =
 		parsedBody;
+
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	if (user.role === "admin") {
+		return res.status(403).json({ error: "Admins cannot create posts" });
+	}
 	const hasSchedule = Boolean(scheduledTime);
 	const normalizedSchedule = hasSchedule ? scheduledTime : null;
 	const normalizedPlatforms =
 		Array.isArray(platforms) && platforms.length ? platforms : ["mastodon"];
+	const integrations = await SettingsRepository.ensureIntegrations();
+	const platformEnabled = {
+		mastodon: integrations.mastodonEnabled,
+		bluesky: integrations.blueskyEnabled,
+	};
+	const disabledPlatforms = normalizedPlatforms.filter(
+		(platform) => !platformEnabled[platform],
+	);
+
+	if (disabledPlatforms.length > 0) {
+		return res.status(400).json({
+			error: "Requested platforms are disabled",
+			disabledPlatforms,
+		});
+	}
 	const nextStatus = hasSchedule
 		? status && status !== "draft"
 			? status
@@ -30,7 +56,7 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 		: "draft";
 
 	const post = await PostRepository.create(
-		req.user.id,
+		user.id,
 		content,
 		normalizedSchedule,
 		visibility,
@@ -44,7 +70,7 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 
 // Mastodon requires media to be uploaded first, before attaching to post
 router.post(
-	"/upload-media",
+"/upload-media",
 	upload.single("file"),
 	authMiddleware,
 	async (req, res) => {
@@ -52,11 +78,28 @@ router.post(
 			return res.status(400).json({ message: "No file uploaded" });
 		}
 
+		const user = await UserRepository.getByUsername(req.user.username);
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		if (user.role === "admin") {
+			return res.status(403).json({ error: "Admins cannot upload media" });
+		}
+
+		const integrations = await SettingsRepository.ensureIntegrations();
+		if (!integrations.mastodonEnabled) {
+			return res
+				.status(400)
+				.json({ error: "Mastodon integration is disabled" });
+		}
+
 		const form = new FormData();
 		const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
 		form.append("file", blob, req.file.originalname);
 
-		const accessToken = await UserRepository.getMastodonKey(req.user.id);
+		const accessToken = await UserRepository.getMastodonKey(user.id);
 
 		if (!accessToken) {
 			return res.status(400).json({ error: "Mastodon account not connected" });

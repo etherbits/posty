@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Calendar, Eye, Upload, X } from "lucide-react";
 import styles from "./CreatePostForm.module.css";
 
@@ -21,6 +21,20 @@ export function CreatePostForm({
 			.map((platform) => platform.id);
 		return linked.length ? linked : [];
 	});
+
+	useEffect(() => {
+		const linked = platformOptions
+			.filter((platform) => linkedPlatforms[platform.id])
+			.map((platform) => platform.id);
+		setPlatforms((prev) => {
+			const filtered = prev.filter((id) => linked.includes(id));
+			const next = filtered.length ? filtered : linked;
+			if (next.length === prev.length && next.every((id, i) => id === prev[i])) {
+				return prev;
+			}
+			return next;
+		});
+	}, [platformOptions, linkedPlatforms]);
 
 	const resetForm = () => {
 		setContent("");
@@ -99,22 +113,28 @@ export function CreatePostForm({
 						const isLinked = linkedPlatforms[platform.id];
 						const isSelected = platforms.includes(platform.id);
 						return (
-							<button
-								key={platform.id}
-								type="button"
-								className={`${styles.platformButton} ${
-									isSelected ? styles.platformActive : ""
-								} ${!isLinked ? styles.platformDisabled : ""}`}
-								aria-pressed={isSelected}
-								disabled={!isLinked}
-								onClick={() => togglePlatform(platform.id)}
-							>
-								<span className={styles.platformIcon}>{platform.shortLabel}</span>
-								<span>{platform.label}</span>
-							</button>
-						);
-					})}
-				</div>
+								<button
+									key={platform.id}
+									type="button"
+									className={`${styles.platformButton} ${
+										isSelected ? styles.platformActive : ""
+									} ${!isLinked ? styles.platformDisabled : ""}`}
+									aria-pressed={isSelected}
+									disabled={!isLinked}
+									onClick={() => togglePlatform(platform.id)}
+								>
+									<span className={styles.platformIcon}>
+										{platform.icon ? (
+											<img src={platform.icon} alt={platform.label} />
+										) : (
+											platform.shortLabel
+										)}
+									</span>
+									<span>{platform.label}</span>
+								</button>
+							);
+						})}
+					</div>
 				{platforms.length === 0 && (
 					<p className={styles.platformHint}>
 						Connect at least one social account to post.

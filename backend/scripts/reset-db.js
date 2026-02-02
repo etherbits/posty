@@ -10,6 +10,8 @@ async function resetTables() {
 	const query = `
     TRUNCATE TABLE posts CASCADE;
     TRUNCATE TABLE mastodon_keys CASCADE;
+    TRUNCATE TABLE user_targets CASCADE;
+    TRUNCATE TABLE app_settings CASCADE;
     TRUNCATE TABLE users CASCADE;
   `;
 

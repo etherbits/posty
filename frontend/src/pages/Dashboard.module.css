@@ -36,7 +36,7 @@
 }
 
 .kpiCard {
-	border-radius: 14px;
+	border-radius: 10px;
 	padding: 14px 18px 12px;
 	min-height: 78px;
 	color: var(--text-white);
@@ -48,15 +48,16 @@
 }
 
 .kpiLabel {
-	font-size: 12px;
+	font-size: 14px;
 	letter-spacing: 0.06em;
-	opacity: 0.75;
+	font-weight: 700;
+	opacity: 0.5;
 }
 
 .kpiValue {
-	margin-top: 10px;
+	margin-top: 6px;
 	display: block;
-	font-size: 20px;
+	font-size: 14px;
 	font-weight: 600;
 }
 
@@ -80,8 +81,8 @@
 
 .statCard {
 	background: var(--bg-card);
-	border-radius: 16px;
-	padding: 18px 26px;
+	border-radius: 10px;
+	padding: 28px 34px;
 	box-shadow: 0 10px 22px rgba(35, 38, 61, 0.08);
 	border: none;
 	display: flex;
@@ -101,13 +102,13 @@
 .statInfo {
 	display: flex;
 	flex-direction: column;
-	gap: 6px;
-	flex: 1;
+	gap: 8px;
+	width: max-content;
 }
 
 .statDivider {
 	width: 1px;
-	height: 54px;
+	height: 75px;
 	align-self: center;
 	background: #e9ecf4;
 	flex: 0 0 1px;
@@ -118,32 +119,34 @@
 }
 
 .statTitle {
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: 700;
 	color: var(--text-dark);
 }
 
 .statSubtitle {
 	font-size: 13px;
-	color: var(--text-muted);
+	color: #4d4a81;
+	font-weight: 600;
 	margin-top: 0;
 }
 
 .statTitleLight {
-	font-size: 16px;
+	font-size: 18px;
 	font-weight: 700;
 	color: var(--text-white);
 }
 
 .statSubtitleLight {
 	font-size: 13px;
+	font-weight: 600;
 	color: rgba(255, 255, 255, 0.8);
 	margin-top: 0;
 }
 
 .progressRing {
-	width: 64px;
-	height: 64px;
+	width: 76px;
+	height: 76px;
 	border-radius: 50%;
 	display: grid;
 	place-items: center;
@@ -158,8 +161,8 @@
 }
 
 .progressRing > span {
-	width: 46px;
-	height: 46px;
+	width: 66px;
+	height: 66px;
 	border-radius: 50%;
 	background: var(--ring-center, var(--bg-card));
 	display: flex;

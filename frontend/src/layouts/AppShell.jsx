@@ -1,18 +1,28 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { FileText, UserCircle } from "lucide-react";
+import { FileText, UserCircle, Users } from "lucide-react";
 import { RightPanel } from "../components/RightPanel";
 import styles from "./AppShell.module.css";
 
-const navItems = [
-	{ to: "/", label: "Dashboard", iconSrc: "/vectors/home.svg", end: true },
-	{ to: "/posts", label: "Posts", icon: FileText },
-	{ to: "/settings", label: "Settings", iconSrc: "/vectors/settings.svg" },
-];
+const getNavItems = (role) => {
+	if (role === "admin") {
+		return [
+			{ to: "/users", label: "Users", icon: Users, end: true },
+			{ to: "/posts", label: "Posts", icon: FileText },
+			{ to: "/settings", label: "Settings", iconSrc: "/vectors/settings.svg" },
+		];
+	}
+	return [
+		{ to: "/", label: "Dashboard", iconSrc: "/vectors/home.svg", end: true },
+		{ to: "/posts", label: "Posts", icon: FileText },
+		{ to: "/settings", label: "Settings", iconSrc: "/vectors/settings.svg" },
+	];
+};
 
 export function AppShell({ user, stats, onLogout, onReplayToasts, children }) {
 	const [isProfileOpen, setIsProfileOpen] = useState(false);
 	const location = useLocation();
+	const navItems = getNavItems(user?.role);
 
 	useEffect(() => {
 		setIsProfileOpen(false);

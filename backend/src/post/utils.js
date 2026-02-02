@@ -1,7 +1,13 @@
 import PostRepository from "./repository.js";
 import UserRepository from "../user/repository.js";
+import SettingsRepository from "../settings/repository.js";
 
 export async function sendDuePosts() {
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.mastodonEnabled) {
+		return 0;
+	}
+
 	const duePosts = await PostRepository.getDue();
 	let sentIdCount = 0;
 
@@ -10,7 +16,8 @@ export async function sendDuePosts() {
 			? duePost.platforms
 			: null;
 		const shouldSendToMastodon =
-			!platforms || platforms.length === 0 || platforms.includes("mastodon");
+			(!platforms || platforms.length === 0 || platforms.includes("mastodon")) &&
+			integrations.mastodonEnabled;
 
 		if (!shouldSendToMastodon) {
 			continue;
@@ -72,6 +79,11 @@ export async function sendPost(userId, content, visibility, mediaIds) {
  * Groups posts by user to use the correct access token and parallelizes requests across users.
  */
 export async function enrichPosts(posts) {
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.mastodonEnabled) {
+		return posts;
+	}
+
 	// Filter posts that need enrichment (sent posts with mastodon_id)
 	const postsToEnrich = posts.filter(
 		(post) => post.status === "sent" && post.mastodon_id,
@@ -169,6 +181,11 @@ export async function enrichPosts(posts) {
 }
 
 export async function enrichPost(post) {
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.mastodonEnabled) {
+		return post;
+	}
+
 	const mastodonToken = await UserRepository.getMastodonKey(post.user_id);
 
 	if (!mastodonToken) {

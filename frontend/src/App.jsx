@@ -4,13 +4,17 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuth } from "./hooks/useAuth";
 import { usePosts } from "./hooks/usePosts";
+import { useIntegrations } from "./hooks/useIntegrations";
+import { useUsers } from "./hooks/useUsers";
 
 import { AuthForm } from "./components/AuthForm";
 import { AppShell } from "./layouts/AppShell";
 import { Dashboard } from "./pages/Dashboard";
 import { Posts } from "./pages/Posts";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { Settings } from "./pages/Settings";
+import { Users } from "./pages/Users";
 import { replayToasts } from "./utils/toastHistory";
+import { useTargets } from "./hooks/useTargets";
 import styles from "./App.module.css";
 
 const POLL_INTERVAL_SECONDS = 10;
@@ -23,6 +27,8 @@ function App() {
 		signIn,
 		signUp,
 		logout,
+		connectMastodon,
+		disconnectMastodon,
 		canViewPosts,
 	} = useAuth();
 
@@ -47,6 +53,13 @@ function App() {
 		calculateStats,
 		clearPosts,
 	} = usePosts();
+	const { targets, updateTargets } = useTargets(isAuthenticated);
+	const isAdmin = user?.role === "admin";
+	const { integrations, updateIntegrations } = useIntegrations(isAuthenticated);
+	const { users, isLoadingUsers, refreshUsers } = useUsers(
+		isAuthenticated,
+		isAdmin,
+	);
 
 	const didFetchRef = useRef(false);
 
@@ -92,7 +105,6 @@ function App() {
 	}
 
 	const stats = calculateStats();
-	const isAdmin = user?.role === "admin";
 
 	return (
 		<>
@@ -106,7 +118,27 @@ function App() {
 				<Routes>
 					<Route
 						path="/"
-						element={<Dashboard posts={canViewPosts ? posts : []} />}
+						element={
+							isAdmin ? (
+								<Navigate to="/users" replace />
+							) : (
+								<Dashboard posts={canViewPosts ? posts : []} targets={targets} />
+							)
+						}
+					/>
+					<Route
+						path="/users"
+						element={
+							isAdmin ? (
+								<Users
+									users={users}
+									isLoading={isLoadingUsers}
+									onRefresh={refreshUsers}
+								/>
+							) : (
+								<Navigate to="/" replace />
+							)
+						}
 					/>
 					<Route
 						path="/posts"
@@ -131,12 +163,24 @@ function App() {
 								isAdmin={isAdmin}
 								user={user}
 								pollInterval={POLL_INTERVAL_SECONDS}
+								integrations={integrations}
 							/>
 						}
 					/>
 					<Route
 						path="/settings"
-						element={<PlaceholderPage title="Settings" />}
+						element={
+							<Settings
+								user={user}
+								onConnectMastodon={connectMastodon}
+								onDisconnectMastodon={disconnectMastodon}
+								targets={targets}
+								onUpdateTargets={updateTargets}
+								integrations={integrations}
+								onUpdateIntegrations={updateIntegrations}
+								isAdmin={isAdmin}
+							/>
+						}
 					/>
 					<Route path="/create" element={<Navigate to="/posts" replace />} />
 					<Route path="/profile" element={<Navigate to="/" replace />} />

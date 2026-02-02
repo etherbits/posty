@@ -49,10 +49,51 @@ async function hasMastodonConnected(userId) {
 	return result.rows.length > 0;
 }
 
+async function ensureTargets(userId) {
+	await db.query(
+		"INSERT INTO user_targets(user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING",
+		[userId],
+	);
+	const result = await db.query(
+		"SELECT weekly_target, monthly_target FROM user_targets WHERE user_id = $1",
+		[userId],
+	);
+	return result.rows[0];
+}
+
+async function upsertTargets(userId, weeklyTarget, monthlyTarget) {
+	const result = await db.query(
+		"INSERT INTO user_targets(user_id, weekly_target, monthly_target) VALUES ($1, $2, $3) ON CONFLICT (user_id) DO UPDATE SET weekly_target = EXCLUDED.weekly_target, monthly_target = EXCLUDED.monthly_target, updated_at = NOW() RETURNING weekly_target, monthly_target",
+		[userId, weeklyTarget, monthlyTarget],
+	);
+	return result.rows[0];
+}
+
+async function getAllUsers() {
+	const result = await db.query(
+		`SELECT
+			users.id,
+			users.username,
+			users.role,
+			COUNT(posts.id) AS posts_count,
+			EXISTS(
+				SELECT 1 FROM mastodon_keys WHERE mastodon_keys.user_id = users.id
+			) AS has_mastodon_connected
+		FROM users
+		LEFT JOIN posts ON posts.user_id = users.id
+		GROUP BY users.id
+		ORDER BY users.username ASC`,
+	);
+	return result.rows;
+}
+
 export default {
 	create,
 	getByUsername,
 	addMastodonKey,
 	getMastodonKey,
 	hasMastodonConnected,
+	ensureTargets,
+	upsertTargets,
+	getAllUsers,
 };

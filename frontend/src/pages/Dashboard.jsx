@@ -2,16 +2,19 @@ import { useMemo } from "react";
 import { ActivityChart } from "../components/ActivityChart";
 import styles from "./Dashboard.module.css";
 
-const DAYS_WINDOW = 30;
+const DEFAULT_TARGETS = {
+	weekly: 10,
+	monthly: 50,
+};
 
 function resolvePostDate(post) {
 	return post.created_at || post.scheduled_time || post.scheduledTime || null;
 }
 
-function computeEngagements(posts) {
+function computeEngagements(posts, days) {
 	const now = new Date();
 	const start = new Date();
-	start.setDate(now.getDate() - (DAYS_WINDOW - 1));
+	start.setDate(now.getDate() - (days - 1));
 	start.setHours(0, 0, 0, 0);
 
 	return posts.reduce(
@@ -29,23 +32,42 @@ function computeEngagements(posts) {
 	);
 }
 
-export function Dashboard({ posts }) {
-	const engagements = useMemo(() => computeEngagements(posts), [posts]);
+function calculateProgress(value, target) {
+	if (!target) return 0;
+	const percent = Math.round((value / target) * 100);
+	return Math.min(100, Math.max(0, percent));
+}
+
+export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
+	const monthlyEngagements = useMemo(() => computeEngagements(posts, 30), [posts]);
+	const weeklyEngagements = useMemo(() => computeEngagements(posts, 7), [posts]);
+	const weeklyTotal =
+		weeklyEngagements.favorites +
+		weeklyEngagements.replies +
+		weeklyEngagements.reposts;
+	const monthlyTotal =
+		monthlyEngagements.favorites +
+		monthlyEngagements.replies +
+		monthlyEngagements.reposts;
+	const weeklyTarget = Number(targets.weekly ?? DEFAULT_TARGETS.weekly);
+	const monthlyTarget = Number(targets.monthly ?? DEFAULT_TARGETS.monthly);
+	const weeklyProgress = calculateProgress(weeklyTotal, weeklyTarget);
+	const monthlyProgress = calculateProgress(monthlyTotal, monthlyTarget);
 
 	const kpiData = [
 		{
 			label: "Favorites",
-			value: engagements.favorites,
+			value: monthlyEngagements.favorites,
 			variant: "primary",
 		},
 		{
 			label: "Replies",
-			value: engagements.replies,
+			value: monthlyEngagements.replies,
 			variant: "secondary",
 		},
 		{
 			label: "Reposts",
-			value: engagements.reposts,
+			value: monthlyEngagements.reposts,
 			variant: "teal",
 		},
 	];
@@ -96,27 +118,25 @@ export function Dashboard({ posts }) {
 					<div className={styles.statCard}>
 						<div className={styles.statInfo}>
 							<p className={styles.statTitle}>Weekly Target</p>
-							<p className={styles.statSubtitle}>25% achieved</p>
+							<p className={styles.statSubtitle}>{weeklyProgress}% achieved</p>
 						</div>
 						<div className={styles.statDivider} />
 						<div
 							className={styles.progressRing}
 							style={{
-								"--progress": 25,
+								"--progress": weeklyProgress,
 								"--ring-accent": "var(--color-primary)",
 								"--ring-base": "#eef0f6",
 								"--ring-center": "#ffffff",
 							}}
 						>
-							<span>
-								<span>25%</span>
-							</span>
+							<span>{weeklyProgress}%</span>
 						</div>
 					</div>
 					<div className={`${styles.statCard} ${styles.statCardPrimary}`}>
 						<div className={styles.statInfo}>
 							<p className={styles.statTitleLight}>Montly Target</p>
-							<p className={styles.statSubtitleLight}>50% achieved</p>
+							<p className={styles.statSubtitleLight}>{monthlyProgress}% achieved</p>
 						</div>
 						<div
 							className={`${styles.statDivider} ${styles.statDividerLight}`}
@@ -124,15 +144,13 @@ export function Dashboard({ posts }) {
 						<div
 							className={`${styles.progressRing} ${styles.progressRingLight}`}
 							style={{
-								"--progress": 50,
+								"--progress": monthlyProgress,
 								"--ring-accent": "#f9896b",
 								"--ring-base": "rgba(255, 255, 255, 0.35)",
 								"--ring-center": "#4f46ba",
 							}}
 						>
-							<span>
-								<span>50%</span>
-							</span>
+							<span>{monthlyProgress}%</span>
 						</div>
 					</div>
 				</div>

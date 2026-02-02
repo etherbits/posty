@@ -109,32 +109,38 @@ export function PostCard({
 						/>
 					</div>
 
-					<div className={styles.editRow}>
-						<label className={styles.editLabel}>Platforms</label>
-						<div className={styles.platforms}>
-							{platformOptions.map((platform) => {
-								const isLinked = linkedPlatforms[platform.id];
-								const selected = editForm.platforms?.includes(platform.id);
-								return (
-									<button
-										key={platform.id}
-										type="button"
-										disabled={!isLinked}
-										aria-pressed={selected}
-										className={`${styles.platformButton} ${
-											selected ? styles.platformActive : ""
-										} ${!isLinked ? styles.platformDisabled : ""}`}
-										onClick={() => togglePlatform(platform.id)}
-									>
-										<span className={styles.platformIcon}>
-											{platform.shortLabel}
-										</span>
-										{platform.label}
-									</button>
-								);
-							})}
+					{platformOptions.length > 0 && (
+						<div className={styles.editRow}>
+							<label className={styles.editLabel}>Platforms</label>
+							<div className={styles.platforms}>
+								{platformOptions.map((platform) => {
+									const isLinked = linkedPlatforms[platform.id];
+									const selected = editForm.platforms?.includes(platform.id);
+									return (
+										<button
+											key={platform.id}
+											type="button"
+											disabled={!isLinked}
+											aria-pressed={selected}
+											className={`${styles.platformButton} ${
+												selected ? styles.platformActive : ""
+											} ${!isLinked ? styles.platformDisabled : ""}`}
+											onClick={() => togglePlatform(platform.id)}
+										>
+											<span className={styles.platformIcon}>
+												{platform.icon ? (
+													<img src={platform.icon} alt={platform.label} />
+												) : (
+													platform.shortLabel
+												)}
+											</span>
+											{platform.label}
+										</button>
+									);
+								})}
+							</div>
 						</div>
-					</div>
+					)}
 
 					{showStatusToggle && (
 						<div className={styles.editRow}>
@@ -193,18 +199,24 @@ export function PostCard({
 					{platformOptions
 						.filter((platform) => platforms.includes(platform.id))
 						.map((platform) => (
-							<button
-								key={platform.id}
-								type="button"
-								disabled={!linkedPlatforms[platform.id]}
-								className={`${styles.platformButton} ${styles.platformActive} ${
-									!linkedPlatforms[platform.id] ? styles.platformDisabled : ""
-								}`}
-							>
-								<span className={styles.platformIcon}>{platform.shortLabel}</span>
-								{platform.label}
-							</button>
-						))}
+						<button
+							key={platform.id}
+							type="button"
+							disabled={!linkedPlatforms[platform.id]}
+							className={`${styles.platformButton} ${styles.platformActive} ${
+								!linkedPlatforms[platform.id] ? styles.platformDisabled : ""
+							}`}
+						>
+							<span className={styles.platformIcon}>
+								{platform.icon ? (
+									<img src={platform.icon} alt={platform.label} />
+								) : (
+									platform.shortLabel
+								)}
+							</span>
+							{platform.label}
+						</button>
+					))}
 				</div>
 			)}
 
