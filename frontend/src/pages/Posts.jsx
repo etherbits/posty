@@ -30,7 +30,6 @@ export function Posts({
 	const [timerKey, setTimerKey] = useState(0);
 	const mastodonEnabled = integrations?.mastodonEnabled ?? true;
 	const blueskyEnabled = integrations?.blueskyEnabled ?? false;
-	const canCreate = !isAdmin && (mastodonEnabled || blueskyEnabled);
 
 	const platformOptions = [
 		{
@@ -51,6 +50,9 @@ export function Posts({
 		mastodon: Boolean(user?.hasMastodonConnected) && mastodonEnabled,
 		bluesky: Boolean(user?.hasBlueskyConnected) && blueskyEnabled,
 	};
+	const hasLinkedPlatform =
+		linkedPlatforms.mastodon || linkedPlatforms.bluesky;
+	const canCreate = !isAdmin && hasLinkedPlatform;
 
 	const handleRefresh = () => {
 		onRefresh();

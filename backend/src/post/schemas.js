@@ -5,6 +5,7 @@ const postSchema = Joi.object({
 	scheduledTime: Joi.date().iso().allow(null).optional(),
 	visibility: Joi.string().valid("public", "private").required(),
 	mediaIds: Joi.array().items(Joi.string()).required(),
+	blueskyMedia: Joi.array().items(Joi.object().unknown(true)).optional(),
 	status: Joi.string().valid("pending", "canceled", "draft").optional(),
 	platforms: Joi.array()
 		.items(Joi.string().valid("mastodon", "bluesky"))

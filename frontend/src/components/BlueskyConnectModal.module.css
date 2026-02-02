@@ -1,0 +1,138 @@
+.overlay {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(16, 18, 30, 0.45);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.2s ease;
+	z-index: 40;
+	padding: 24px;
+}
+
+.overlay.open {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.modal {
+	width: min(520px, 100%);
+	background: var(--bg-card);
+	border-radius: 20px;
+	padding: 24px 26px 26px;
+	box-shadow: 0 24px 48px rgba(28, 32, 53, 0.22);
+	transform: translateY(12px);
+	transition: transform 0.2s ease;
+}
+
+.modal.open {
+	transform: translateY(0);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 18px;
+}
+
+.title {
+	font-size: 18px;
+	font-weight: 700;
+	color: var(--text-navy);
+}
+
+.subtitle {
+	font-size: 13px;
+	color: var(--text-muted);
+	margin-top: 6px;
+}
+
+.close {
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	display: grid;
+	place-items: center;
+	background: #f3f4f9;
+	color: var(--text-dark);
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 12px;
+	color: var(--text-indigo);
+	font-weight: 600;
+}
+
+.input {
+	padding: 12px 12px;
+	border-radius: 12px;
+	border: 1px solid var(--border-color);
+	background: #f8f9fc;
+	color: var(--text-dark);
+	font-size: 14px;
+}
+
+.input:focus {
+	outline: none;
+	border-color: var(--color-primary);
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 6px;
+}
+
+.primaryButton {
+	padding: 10px 18px;
+	border-radius: 10px;
+	background: var(--color-primary);
+	color: var(--text-white);
+	font-size: 13px;
+	font-weight: 600;
+	box-shadow: 0 12px 24px rgba(79, 70, 186, 0.25);
+}
+
+.secondaryButton {
+	padding: 10px 16px;
+	border-radius: 10px;
+	background: #f3f4f9;
+	color: var(--text-indigo);
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+	.modal {
+		padding: 20px 20px 22px;
+		max-height: calc(100vh - 32px);
+		overflow-y: auto;
+	}
+
+	.actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+}

@@ -69,92 +69,14 @@ export function PostCard({
 		};
 
 		return (
-			<div className={`${styles.card} ${styles.editing}`}>
-				<div className={styles.editForm}>
-					<textarea
-						value={editForm.content}
-						onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-						placeholder="Post content..."
-						rows={3}
-						className={styles.editTextarea}
-					/>
-
-					<div className={styles.editRow}>
-						<label className={styles.editLabel}>
-							<Eye size={14} />
-							Visibility
-						</label>
-						<select
-							value={editForm.visibility}
-							onChange={(e) =>
-								setEditForm({ ...editForm, visibility: e.target.value })
-							}
-							className={styles.editInput}
-						>
-							<option value="public">Public</option>
-							<option value="private">Private</option>
-						</select>
-					</div>
-
-					<div className={styles.editRow}>
-						<label className={styles.editLabel}>
-							<Calendar size={14} />
-							Schedule
-						</label>
-						<input
-							type="datetime-local"
-							value={editForm.scheduledTime}
-							onChange={handleScheduleChange}
-							className={styles.editInput}
-						/>
-					</div>
-
-					{platformOptions.length > 0 && (
-						<div className={styles.editRow}>
-							<label className={styles.editLabel}>Platforms</label>
-							<div className={styles.platforms}>
-								{platformOptions.map((platform) => {
-									const isLinked = linkedPlatforms[platform.id];
-									const selected = editForm.platforms?.includes(platform.id);
-									return (
-										<button
-											key={platform.id}
-											type="button"
-											disabled={!isLinked}
-											aria-pressed={selected}
-											className={`${styles.platformButton} ${
-												selected ? styles.platformActive : ""
-											} ${!isLinked ? styles.platformDisabled : ""}`}
-											onClick={() => togglePlatform(platform.id)}
-										>
-											<span className={styles.platformIcon}>
-												{platform.icon ? (
-													<img src={platform.icon} alt={platform.label} />
-												) : (
-													platform.shortLabel
-												)}
-											</span>
-											{platform.label}
-										</button>
-									);
-								})}
-							</div>
+			<div className={`${styles.card} ${styles.editing} ${styles[resolvedStatus]}`}>
+				<div className={styles.editHeader}>
+					<div>
+						<div className={styles.editTitle}>Edit post</div>
+						<div className={styles.editSubtitle}>
+							Update your content, schedule, and platforms.
 						</div>
-					)}
-
-					{showStatusToggle && (
-						<div className={styles.editRow}>
-							<label className={styles.editLabel}>Status</label>
-							<button
-								type="button"
-								onClick={onToggleStatus}
-								className={`${styles.statusToggle} ${styles[editForm.status]}`}
-							>
-								{editForm.status === "canceled" ? "Canceled" : "Pending"}
-							</button>
-						</div>
-					)}
-
+					</div>
 					<div className={styles.editActions}>
 						<button className={styles.primaryAction} onClick={() => onSaveEdit(post.id)}>
 							<Check size={14} />
@@ -166,100 +88,215 @@ export function PostCard({
 						</button>
 					</div>
 				</div>
+
+				<div className={styles.editBody}>
+					<div className={styles.editMain}>
+						<label className={styles.fieldLabel}>Post content</label>
+						<textarea
+							value={editForm.content}
+							onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+							placeholder="Post content..."
+							rows={4}
+							className={styles.editTextarea}
+						/>
+					</div>
+
+					<div className={styles.editSide}>
+						<div className={styles.editBlock}>
+							<label className={styles.fieldLabel}>
+								<Eye size={14} />
+								Visibility
+							</label>
+						<select
+							value={editForm.visibility}
+							onChange={(e) =>
+								setEditForm({ ...editForm, visibility: e.target.value })
+							}
+							className={`${styles.editInput} ${styles.selectInput}`}
+						>
+							<option value="public">Public</option>
+							<option value="private">Private</option>
+						</select>
+						</div>
+
+						<div className={styles.editBlock}>
+							<label className={styles.fieldLabel}>
+								<Calendar size={14} />
+								Schedule
+							</label>
+							<input
+								type="datetime-local"
+								value={editForm.scheduledTime}
+								onChange={handleScheduleChange}
+								className={styles.editInput}
+							/>
+						</div>
+
+						{platformOptions.length > 0 && (
+							<div className={styles.editBlock}>
+								<label className={styles.fieldLabel}>Platforms</label>
+								<div className={styles.platforms}>
+									{platformOptions.map((platform) => {
+										const isLinked = linkedPlatforms[platform.id];
+										const selected = editForm.platforms?.includes(platform.id);
+										return (
+											<button
+												key={platform.id}
+												type="button"
+												disabled={!isLinked}
+												aria-pressed={selected}
+												className={`${styles.platformButton} ${
+													styles.platformSelectable
+												} ${selected ? styles.platformActive : ""} ${
+													!isLinked ? styles.platformDisabled : ""
+												}`}
+												onClick={() => togglePlatform(platform.id)}
+											>
+												<span className={styles.platformIcon}>
+													{platform.icon ? (
+														<img src={platform.icon} alt={platform.label} />
+													) : (
+														platform.shortLabel
+													)}
+												</span>
+												{platform.label}
+											</button>
+										);
+									})}
+								</div>
+							</div>
+						)}
+
+						{showStatusToggle && (
+							<div className={styles.editBlock}>
+								<label className={styles.fieldLabel}>Status</label>
+								<button
+									type="button"
+									onClick={onToggleStatus}
+									className={`${styles.statusToggle} ${styles[editForm.status]}`}
+								>
+									{editForm.status === "canceled" ? "Canceled" : "Pending"}
+								</button>
+							</div>
+						)}
+					</div>
+				</div>
 			</div>
 		);
 	}
 
 	return (
 		<div className={`${styles.card} ${styles[resolvedStatus]}`}>
-			<div className={styles.header}>
-				{isAdmin && post.username && (
-					<span className={styles.author}>@{post.username}</span>
-				)}
-				<span className={`${styles.status} ${styles[resolvedStatus]}`}>
-					{statusLabels[resolvedStatus]}
-				</span>
-			</div>
-
-			<p className={styles.content}>{post.content}</p>
-
-			<div className={styles.meta}>
-				<div className={styles.metaItem}>
-					<Calendar size={14} />
-					<span>{scheduledLabel}</span>
+			<div className={styles.topRow}>
+				<div className={styles.badgeRow}>
+					{isAdmin && post.username && (
+						<span className={styles.authorBadge}>@{post.username}</span>
+					)}
+					<span className={styles.statusBadge}>{statusLabels[resolvedStatus]}</span>
+					<span className={styles.metaBadge}>
+						<Calendar size={12} />
+						<span>{scheduledLabel}</span>
+					</span>
+					<span className={`${styles.metaBadge} ${styles.visibilityBadge}`}>
+						<Eye size={12} />
+						<span>{post.visibility}</span>
+					</span>
 				</div>
-				<div className={styles.metaItem}>
-					<Eye size={14} />
-					<span>{post.visibility}</span>
-				</div>
-			</div>
-
-			{platformOptions.some((platform) => platforms.includes(platform.id)) && (
-				<div className={styles.platforms}>
-					{platformOptions
-						.filter((platform) => platforms.includes(platform.id))
-						.map((platform) => (
-						<button
-							key={platform.id}
-							type="button"
-							disabled={!linkedPlatforms[platform.id]}
-							className={`${styles.platformButton} ${styles.platformActive} ${
-								!linkedPlatforms[platform.id] ? styles.platformDisabled : ""
-							}`}
-						>
-							<span className={styles.platformIcon}>
-								{platform.icon ? (
-									<img src={platform.icon} alt={platform.label} />
-								) : (
-									platform.shortLabel
-								)}
-							</span>
-							{platform.label}
-						</button>
-					))}
-				</div>
-			)}
-
-			<div className={styles.stats}>
-				<div className={styles.statItem}>
-					<MessageCircle size={14} />
-					<span>{post.replies_count || 0}</span>
-				</div>
-				<div className={styles.statItem}>
-					<Heart size={14} />
-					<span>{post.favorites_count || 0}</span>
-				</div>
-				<div className={styles.statItem}>
-					<Repeat size={14} />
-					<span>{post.reposts_count ?? post.reblogs_count ?? 0}</span>
+				<div className={styles.actions}>
+					<button
+						type="button"
+						className={styles.iconButton}
+						onClick={() => onStartEdit(post)}
+						disabled={post.status === "sent"}
+						title={post.status === "sent" ? "Sent posts cannot be edited" : "Edit post"}
+					>
+						<Edit2 size={16} />
+					</button>
+					<button
+						type="button"
+						className={styles.iconButton}
+						onClick={() => onDelete(post.id)}
+						title="Delete post"
+					>
+						<Trash2 size={16} />
+					</button>
 				</div>
 			</div>
 
-			{post.url && (
-				<a href={post.url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-					<Link size={14} />
-					<span>View on Mastodon</span>
-				</a>
-			)}
+			<div className={styles.contentBox}>
+				<p className={styles.content}>{post.content}</p>
+			</div>
 
-			<div className={styles.actions}>
-				<button
-					type="button"
-					className={styles.iconButton}
-					onClick={() => onStartEdit(post)}
-					disabled={post.status === "sent"}
-					title={post.status === "sent" ? "Sent posts cannot be edited" : "Edit post"}
-				>
-					<Edit2 size={16} />
-				</button>
-				<button
-					type="button"
-					className={styles.iconButton}
-					onClick={() => onDelete(post.id)}
-					title="Delete post"
-				>
-					<Trash2 size={16} />
-				</button>
+			<div className={styles.footer}>
+				<div className={styles.footerLeft}>
+					{platformOptions.some((platform) => platforms.includes(platform.id)) && (
+						<div className={styles.platforms}>
+							{platformOptions
+								.filter((platform) => platforms.includes(platform.id))
+								.map((platform) => (
+									<button
+										key={platform.id}
+										type="button"
+										disabled={!linkedPlatforms[platform.id]}
+										className={`${styles.platformButton} ${styles.platformStatic} ${
+											!linkedPlatforms[platform.id] ? styles.platformDisabled : ""
+										}`}
+									>
+										<span className={styles.platformIcon}>
+											{platform.icon ? (
+												<img src={platform.icon} alt={platform.label} />
+											) : (
+												platform.shortLabel
+											)}
+										</span>
+										{platform.label}
+									</button>
+								))}
+						</div>
+					)}
+
+					{(post.url || post.bluesky_url) && (
+						<div className={styles.linkGroup}>
+							{post.url && (
+								<a
+									href={post.url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className={styles.link}
+								>
+									<Link size={14} />
+									<span>View on Mastodon</span>
+								</a>
+							)}
+							{post.bluesky_url && (
+								<a
+									href={post.bluesky_url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className={styles.link}
+								>
+									<Link size={14} />
+									<span>View on Bluesky</span>
+								</a>
+							)}
+						</div>
+					)}
+				</div>
+
+				<div className={styles.stats}>
+					<div className={styles.statItem}>
+						<MessageCircle size={14} />
+						<span>{post.replies_count || 0}</span>
+					</div>
+					<div className={styles.statItem}>
+						<Heart size={14} />
+						<span>{post.favorites_count || 0}</span>
+					</div>
+					<div className={styles.statItem}>
+						<Repeat size={14} />
+						<span>{post.reposts_count ?? post.reblogs_count ?? 0}</span>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

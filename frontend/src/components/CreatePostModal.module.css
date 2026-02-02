@@ -66,5 +66,7 @@
 @media (max-width: 600px) {
   .modal {
     padding: 20px 20px 22px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
   }
 }

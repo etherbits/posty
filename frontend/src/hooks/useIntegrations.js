@@ -4,7 +4,7 @@ import { notifyError, notifySuccess } from "../utils/toastHistory";
 const API_URL = "http://localhost:3000";
 const DEFAULT_INTEGRATIONS = {
 	mastodonEnabled: true,
-	blueskyEnabled: false,
+	blueskyEnabled: true,
 };
 
 export function useIntegrations(isAuthenticated) {

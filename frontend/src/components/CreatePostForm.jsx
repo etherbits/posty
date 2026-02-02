@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { Image, Calendar, Eye, Upload, X } from "lucide-react";
+import { notifyError } from "../utils/toastHistory";
 import styles from "./CreatePostForm.module.css";
+
+const MASTODON_MEDIA_MAX_BYTES = 8 * 1024 * 1024;
+const BLUESKY_MEDIA_MAX_BYTES = 1 * 1024 * 1024;
+const MAX_MEDIA_BYTES = Math.min(
+	MASTODON_MEDIA_MAX_BYTES,
+	BLUESKY_MEDIA_MAX_BYTES,
+);
+const MAX_MEDIA_MB = Math.max(1, Math.floor(MAX_MEDIA_BYTES / (1024 * 1024)));
 
 export function CreatePostForm({
 	onSchedule,
@@ -14,6 +23,7 @@ export function CreatePostForm({
 	const [scheduledTime, setScheduledTime] = useState("");
 	const [file, setFile] = useState(null);
 	const [mediaIds, setMediaIds] = useState([]);
+	const [blueskyMedia, setBlueskyMedia] = useState([]);
 	const [isUploading, setIsUploading] = useState(false);
 	const [platforms, setPlatforms] = useState(() => {
 		const linked = platformOptions
@@ -36,12 +46,22 @@ export function CreatePostForm({
 		});
 	}, [platformOptions, linkedPlatforms]);
 
+	useEffect(() => {
+		if (!platforms.includes("mastodon") && mediaIds.length > 0) {
+			setMediaIds([]);
+		}
+		if (!platforms.includes("bluesky") && blueskyMedia.length > 0) {
+			setBlueskyMedia([]);
+		}
+	}, [platforms, mediaIds.length, blueskyMedia.length]);
+
 	const resetForm = () => {
 		setContent("");
 		setVisibility("public");
 		setScheduledTime("");
 		setFile(null);
 		setMediaIds([]);
+		setBlueskyMedia([]);
 		const linked = platformOptions
 			.filter((platform) => linkedPlatforms[platform.id])
 			.map((platform) => platform.id);
@@ -67,6 +87,7 @@ export function CreatePostForm({
 			visibility,
 			scheduledTime || null,
 			mediaIds,
+			blueskyMedia,
 			platforms,
 		);
 
@@ -78,19 +99,73 @@ export function CreatePostForm({
 
 	const handleUpload = async () => {
 		if (!file) return;
+		if (!platforms.length) return;
+
+		if (file.size > MAX_MEDIA_BYTES) {
+			notifyError(`File exceeds the max upload size (${MAX_MEDIA_MB}MB)`);
+			return;
+		}
+
+		const isImage = file.type?.startsWith("image/");
+		if (!isImage && platforms.includes("bluesky")) {
+			notifyError("Bluesky supports images only");
+			return;
+		}
+
+		const uploadTargets = platforms.filter((platform) => {
+			if (platform === "bluesky" && blueskyMedia.length >= 4) {
+				notifyError("Bluesky supports up to 4 images per post");
+				return false;
+			}
+			return true;
+		});
+
+		if (!uploadTargets.length) return;
 
 		setIsUploading(true);
-		const mediaId = await onUploadMedia(file);
-		if (mediaId) {
-			setMediaIds((ids) => [...ids, mediaId]);
-			setFile(null);
-		}
+		const uploads = await Promise.all(
+			uploadTargets.map(async (platform) => ({
+				platform,
+				result: await onUploadMedia(file, platform),
+			})),
+		);
+		uploads.forEach(({ platform, result }) => {
+			if (!result) return;
+			if (platform === "mastodon") {
+				setMediaIds((ids) => [...ids, result]);
+			}
+			if (platform === "bluesky") {
+				setBlueskyMedia((items) => [...items, { blob: result, alt: "" }]);
+			}
+		});
+		setFile(null);
 		setIsUploading(false);
 	};
 
-	const removeMedia = (index) => {
-		setMediaIds((ids) => ids.filter((_, i) => i !== index));
+	const removeMedia = (platform, index) => {
+		if (platform === "mastodon") {
+			setMediaIds((ids) => ids.filter((_, i) => i !== index));
+			return;
+		}
+		if (platform === "bluesky") {
+			setBlueskyMedia((items) => items.filter((_, i) => i !== index));
+		}
 	};
+
+	const mediaItems = [
+		...mediaIds.map((id, index) => ({
+			key: `mastodon-${id}-${index}`,
+			label: `Mastodon media #${index + 1}`,
+			platform: "mastodon",
+			index,
+		})),
+		...blueskyMedia.map((item, index) => ({
+			key: `bluesky-${index}`,
+			label: `Bluesky image #${index + 1}`,
+			platform: "bluesky",
+			index,
+		})),
+	];
 
 	return (
 		<form onSubmit={handleSubmit} className={styles.form}>
@@ -148,14 +223,14 @@ export function CreatePostForm({
 						<Eye size={14} />
 						Visibility
 					</label>
-					<select
-						value={visibility}
-						onChange={(e) => setVisibility(e.target.value)}
-						className={styles.input}
-					>
-						<option value="public">Public</option>
-						<option value="private">Private</option>
-					</select>
+				<select
+					value={visibility}
+					onChange={(e) => setVisibility(e.target.value)}
+					className={`${styles.input} ${styles.selectInput}`}
+				>
+					<option value="public">Public</option>
+					<option value="private">Private</option>
+				</select>
 				</div>
 
 				<div className={styles.field}>
@@ -192,21 +267,21 @@ export function CreatePostForm({
 					<button
 						type="button"
 						onClick={handleUpload}
-						disabled={!file || isUploading}
+						disabled={!file || isUploading || platforms.length === 0}
 						className={styles.uploadButton}
 					>
 						{isUploading ? "Uploading..." : "Upload"}
 					</button>
 				</div>
 
-				{mediaIds.length > 0 && (
+				{mediaItems.length > 0 && (
 					<div className={styles.mediaList}>
-						{mediaIds.map((id, index) => (
-							<div key={id} className={styles.mediaItem}>
-								<span>Media #{index + 1}</span>
+						{mediaItems.map((item) => (
+							<div key={item.key} className={styles.mediaItem}>
+								<span>{item.label}</span>
 								<button
 									type="button"
-									onClick={() => removeMedia(index)}
+									onClick={() => removeMedia(item.platform, item.index)}
 									className={styles.mediaRemove}
 								>
 									<X size={14} />

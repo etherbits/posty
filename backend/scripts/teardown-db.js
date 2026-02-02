@@ -9,6 +9,7 @@ async function teardownTables() {
 	const query = `
     DROP TABLE IF EXISTS posts CASCADE;
     DROP TABLE IF EXISTS mastodon_keys CASCADE;
+    DROP TABLE IF EXISTS bluesky_keys CASCADE;
     DROP TABLE IF EXISTS user_targets CASCADE;
     DROP TABLE IF EXISTS app_settings CASCADE;
     DROP TABLE IF EXISTS users CASCADE;

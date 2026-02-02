@@ -6,6 +6,7 @@ const POSTS_PER_PAGE = 10;
 
 export function usePosts() {
 	const [posts, setPosts] = useState([]);
+	const [analyticsPosts, setAnalyticsPosts] = useState([]);
 	const [pagination, setPagination] = useState({
 		page: 1,
 		limit: POSTS_PER_PAGE,
@@ -24,12 +25,39 @@ export function usePosts() {
 		visibility: "",
 		scheduledTime: "",
 		mediaIds: [],
+		blueskyMedia: [],
 		status: "",
 		platforms: ["mastodon"],
 	});
 
 	// Lock to prevent duplicate concurrent fetches
 	const isFetchingRef = useRef(false);
+	const isFetchingAnalyticsRef = useRef(false);
+
+	const fetchAnalytics = useCallback(async () => {
+		if (isFetchingAnalyticsRef.current) {
+			return;
+		}
+		isFetchingAnalyticsRef.current = true;
+		try {
+			const response = await fetch(`${API_URL}/post/analytics`, {
+				credentials: "include",
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				console.error("Failed to fetch analytics:", errorText);
+				throw new Error("Failed to fetch analytics");
+			}
+
+			const data = await response.json();
+			setAnalyticsPosts(Array.isArray(data.posts) ? data.posts : []);
+		} catch (error) {
+			console.error("Error fetching analytics:", error);
+		} finally {
+			isFetchingAnalyticsRef.current = false;
+		}
+	}, []);
 
 	const fetchPosts = useCallback(async (page = 1) => {
 		// Skip if already fetching
@@ -59,13 +87,14 @@ export function usePosts() {
 			if (data.stats) {
 				setStats(data.stats);
 			}
+			fetchAnalytics();
 		} catch (error) {
 			console.error("Error fetching posts:", error);
 			notifyError("Error fetching posts. Make sure you're signed in.");
 		} finally {
 			isFetchingRef.current = false;
 		}
-	}, []);
+	}, [fetchAnalytics]);
 
 	const goToPage = useCallback(
 		(page) => {
@@ -97,6 +126,7 @@ export function usePosts() {
 		visibility,
 		scheduledTime,
 		mediaIds,
+		blueskyMedia,
 		platforms,
 	) => {
 		try {
@@ -111,14 +141,15 @@ export function usePosts() {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
-				body: JSON.stringify({
-					content,
-					visibility,
-					scheduledTime: isoScheduledTime,
-					mediaIds,
-					status,
-					platforms: normalizedPlatforms,
-				}),
+			body: JSON.stringify({
+				content,
+				visibility,
+				scheduledTime: isoScheduledTime,
+				mediaIds,
+				blueskyMedia,
+				status,
+				platforms: normalizedPlatforms,
+			}),
 			});
 
 			if (!response.ok) {
@@ -137,22 +168,26 @@ export function usePosts() {
 		}
 	};
 
-	const uploadMedia = async (file) => {
+	const uploadMedia = async (file, platform = "mastodon") => {
 		try {
 			const formData = new FormData();
 			formData.append("file", file);
 
-			const response = await fetch(`${API_URL}/post/upload-media`, {
+			const endpoint =
+				platform === "bluesky"
+					? `${API_URL}/post/upload-media/bluesky`
+					: `${API_URL}/post/upload-media`;
+			const response = await fetch(endpoint, {
 				method: "POST",
 				credentials: "include",
 				body: formData,
 			});
 
-			if (!response.ok) throw new Error("Image upload failed");
+			if (!response.ok) throw new Error("Media upload failed");
 
 			const data = await response.json();
 			notifySuccess("Media uploaded successfully!");
-			return data.id;
+			return platform === "bluesky" ? data.blob : data.id;
 		} catch (error) {
 			console.error(error);
 			notifyError("Failed to upload media");
@@ -187,6 +222,7 @@ export function usePosts() {
 			visibility: post.visibility,
 			scheduledTime: localScheduledTime,
 			mediaIds: post.media_ids || [],
+			blueskyMedia: post.bluesky_media || [],
 			status: derivedStatus,
 			platforms: derivedPlatforms,
 		});
@@ -212,14 +248,15 @@ export function usePosts() {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
-				body: JSON.stringify({
-					content: editForm.content,
-					visibility: editForm.visibility,
-					scheduledTime: isoScheduledTime,
-					mediaIds: editForm.mediaIds,
-					status,
-					platforms: normalizedPlatforms,
-				}),
+			body: JSON.stringify({
+				content: editForm.content,
+				visibility: editForm.visibility,
+				scheduledTime: isoScheduledTime,
+				mediaIds: editForm.mediaIds,
+				blueskyMedia: editForm.blueskyMedia,
+				status,
+				platforms: normalizedPlatforms,
+			}),
 			});
 
 			if (!response.ok) {
@@ -246,6 +283,7 @@ export function usePosts() {
 			visibility: "",
 			scheduledTime: "",
 			mediaIds: [],
+			blueskyMedia: [],
 			status: "",
 			platforms: ["mastodon"],
 		});
@@ -290,16 +328,16 @@ export function usePosts() {
 
 	const calculateStats = () => {
 		// Use stats from API for accurate totals
-		// Replies and favorites are only available for posts on the current page
-		const totalReplies = posts.reduce(
+		const sourcePosts = analyticsPosts.length ? analyticsPosts : posts;
+		const totalReplies = sourcePosts.reduce(
 			(sum, p) => sum + (p.replies_count || 0),
 			0,
 		);
-		const totalFavorites = posts.reduce(
+		const totalFavorites = sourcePosts.reduce(
 			(sum, p) => sum + (p.favorites_count || 0),
 			0,
 		);
-		const totalReposts = posts.reduce(
+		const totalReposts = sourcePosts.reduce(
 			(sum, p) => sum + (p.reposts_count ?? p.reblogs_count ?? 0),
 			0,
 		);
@@ -317,6 +355,7 @@ export function usePosts() {
 
 	const clearPosts = () => {
 		setPosts([]);
+		setAnalyticsPosts([]);
 		setPagination({
 			page: 1,
 			limit: POSTS_PER_PAGE,
@@ -333,11 +372,13 @@ export function usePosts() {
 
 	return {
 		posts,
+		analyticsPosts,
 		pagination,
 		editingPostId,
 		editForm,
 		setEditForm,
 		fetchPosts,
+		fetchAnalytics,
 		goToPage,
 		nextPage,
 		prevPage,

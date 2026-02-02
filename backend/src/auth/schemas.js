@@ -18,7 +18,13 @@ const signUpSchema = signInSchema.keys({
 		}),
 });
 
+const blueskyConnectSchema = Joi.object({
+	handle: Joi.string().trim().required(),
+	appPassword: Joi.string().trim().required(),
+});
+
 export default {
 	signInSchema,
 	signUpSchema,
+	blueskyConnectSchema,
 };

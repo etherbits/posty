@@ -6,8 +6,28 @@ import { authMiddleware, signJwt } from "./utils.js";
 import UserRepository from "../user/repository.js";
 import { extractProfileData } from "../user/utils.js";
 import SettingsRepository from "../settings/repository.js";
+import { blueskyProvider } from "../lib/providers/index.js";
 
 const router = Router();
+
+function decodeJwtExpiry(token) {
+	if (!token) return null;
+	const payload = token.split(".")[1];
+	if (!payload) return null;
+	const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+	const padded = normalized.padEnd(
+		normalized.length + ((4 - (normalized.length % 4)) % 4),
+		"=",
+	);
+	try {
+		const json = Buffer.from(padded, "base64").toString("utf8");
+		const data = JSON.parse(json);
+		if (!data.exp) return null;
+		return new Date(data.exp * 1000);
+	} catch {
+		return null;
+	}
+}
 
 router.post("/sign-up", async (req, res) => {
 	const { value: parsedBody, error } = AuthParser.signUpSchema.validate(
@@ -109,6 +129,65 @@ router.get("/oauth/mastodon/callback", authMiddleware, async (req, res) => {
 				'http://localhost:5173?toastMessage="Failed to connect to Mastodon"',
 			);
 	}
+});
+
+router.post("/mastodon/disconnect", authMiddleware, async (req, res) => {
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	await UserRepository.removeMastodonKey(user.id);
+	return res.status(200).json({ success: true });
+});
+
+router.post("/bluesky/connect", authMiddleware, async (req, res) => {
+	const { value, error } = AuthParser.blueskyConnectSchema.validate(req.body);
+	if (error) {
+		return res.status(400).json({ error });
+	}
+
+	const integrations = await SettingsRepository.ensureIntegrations();
+	if (!integrations.blueskyEnabled) {
+		return res.status(400).json({ error: "Bluesky integration is disabled" });
+	}
+
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	try {
+		const session = await blueskyProvider.createSession(
+			value.handle,
+			value.appPassword,
+		);
+		const expDate = decodeJwtExpiry(session.accessJwt);
+		await UserRepository.addBlueskyKey(user.id, {
+			did: session.did,
+			handle: session.handle,
+			accessJwt: session.accessJwt,
+			refreshJwt: session.refreshJwt,
+			expiresAt: expDate,
+		});
+		return res.status(200).json({ success: true });
+	} catch (err) {
+		console.error(err);
+		return res.status(400).json({ error: "Failed to connect Bluesky" });
+	}
+});
+
+router.post("/bluesky/disconnect", authMiddleware, async (req, res) => {
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	await UserRepository.removeBlueskyKey(user.id);
+	return res.status(200).json({ success: true });
 });
 
 router.get("/me", authMiddleware, async (req, res) => {

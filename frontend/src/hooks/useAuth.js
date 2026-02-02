@@ -161,15 +161,75 @@ export function useAuth() {
 		}
 	};
 
+	const connectBluesky = async (handle, appPassword) => {
+		try {
+			const response = await fetch(`${API_URL}/auth/bluesky/connect`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify({ handle, appPassword }),
+			});
+
+			if (!response.ok) throw new Error("Bluesky connect failed");
+
+			setUser((prev) => ({
+				...(prev || {}),
+				hasBlueskyConnected: true,
+			}));
+
+			const nextUser = {
+				...(user || {}),
+				hasBlueskyConnected: true,
+			};
+			localStorage.setItem("user", JSON.stringify(nextUser));
+
+			notifySuccess("Connected Bluesky!");
+			return true;
+		} catch (error) {
+			console.error(error);
+			notifyError("Failed to connect Bluesky");
+			return false;
+		}
+	};
+
+	const disconnectBluesky = async () => {
+		try {
+			const response = await fetch(`${API_URL}/auth/bluesky/disconnect`, {
+				method: "POST",
+				credentials: "include",
+			});
+
+			if (!response.ok) throw new Error("Bluesky disconnect failed");
+
+			setUser((prev) => ({
+				...(prev || {}),
+				hasBlueskyConnected: false,
+			}));
+
+			const nextUser = {
+				...(user || {}),
+				hasBlueskyConnected: false,
+			};
+			localStorage.setItem("user", JSON.stringify(nextUser));
+
+			notifySuccess("Disconnected Bluesky!");
+			return true;
+		} catch (error) {
+			console.error(error);
+			notifyError("Failed to disconnect Bluesky");
+			return false;
+		}
+	};
+
 	const canViewPosts = useMemo(() => {
 		if (!user) return false;
 		if (user.role === "admin") return true;
-		return user.hasMastodonConnected;
+		return user.hasMastodonConnected || user.hasBlueskyConnected;
 	}, [user]);
 
 	const canSchedulePosts = useMemo(() => {
 		if (!user) return false;
-		return user.hasMastodonConnected;
+		return user.hasMastodonConnected || user.hasBlueskyConnected;
 	}, [user]);
 
 	return {
@@ -181,6 +241,8 @@ export function useAuth() {
 		logout,
 		connectMastodon,
 		disconnectMastodon,
+		connectBluesky,
+		disconnectBluesky,
 		canViewPosts,
 		canSchedulePosts,
 	};

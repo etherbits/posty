@@ -27,7 +27,7 @@ async function createTables() {
     );
 
     INSERT INTO app_settings(key, value)
-    VALUES ('mastodon_enabled', TRUE), ('bluesky_enabled', FALSE)
+    VALUES ('mastodon_enabled', TRUE), ('bluesky_enabled', TRUE)
     ON CONFLICT (key) DO NOTHING;
 
     CREATE TABLE IF NOT EXISTS mastodon_keys (
@@ -36,16 +36,31 @@ async function createTables() {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS bluesky_keys (
+        user_id UUID PRIMARY KEY,
+        did TEXT NOT NULL,
+        handle TEXT NOT NULL,
+        access_jwt TEXT NOT NULL,
+        refresh_jwt TEXT NOT NULL,
+        expires_at TIMESTAMPTZ,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS posts (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID NOT NULL,
         mastodon_id TEXT,
+        bluesky_uri TEXT,
+        bluesky_cid TEXT,
+        bluesky_url TEXT,
         content TEXT NOT NULL,
         scheduled_time TIMESTAMPTZ,
         status TEXT NOT NULL DEFAULT 'pending',
         visibility TEXT NOT NULL DEFAULT 'private',
         url TEXT,
         media_ids TEXT[],
+        bluesky_media JSONB,
         platforms TEXT[],
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );

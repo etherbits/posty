@@ -2,7 +2,7 @@ import db from "../lib/db/index.js";
 
 const DEFAULT_INTEGRATIONS = {
 	mastodonEnabled: true,
-	blueskyEnabled: false,
+	blueskyEnabled: true,
 };
 
 const INTEGRATION_ROWS = [

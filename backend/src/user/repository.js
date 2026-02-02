@@ -40,6 +40,46 @@ async function getMastodonKey(userId) {
 	return key;
 }
 
+async function removeMastodonKey(userId) {
+	await db.query("DELETE FROM mastodon_keys WHERE user_id = $1", [userId]);
+}
+
+async function addBlueskyKey(userId, { did, handle, accessJwt, refreshJwt, expiresAt }) {
+	await db.query("DELETE FROM bluesky_keys WHERE user_id = $1", [userId]);
+	await db.query(
+		"INSERT INTO bluesky_keys(user_id, did, handle, access_jwt, refresh_jwt, expires_at) VALUES($1, $2, $3, $4, $5, $6)",
+		[userId, did, handle, accessJwt, refreshJwt, expiresAt],
+	);
+}
+
+async function updateBlueskyKey(userId, { accessJwt, refreshJwt, expiresAt }) {
+	await db.query(
+		"UPDATE bluesky_keys SET access_jwt = $1, refresh_jwt = $2, expires_at = $3, updated_at = NOW() WHERE user_id = $4",
+		[accessJwt, refreshJwt, expiresAt, userId],
+	);
+}
+
+async function getBlueskyKey(userId) {
+	const result = await db.query(
+		"SELECT did, handle, access_jwt, refresh_jwt, expires_at FROM bluesky_keys WHERE user_id = $1",
+		[userId],
+	);
+	return result.rows[0];
+}
+
+async function removeBlueskyKey(userId) {
+	await db.query("DELETE FROM bluesky_keys WHERE user_id = $1", [userId]);
+}
+
+async function hasBlueskyConnected(userId) {
+	const result = await db.query(
+		"SELECT 1 FROM bluesky_keys WHERE user_id = $1",
+		[userId],
+	);
+
+	return result.rows.length > 0;
+}
+
 async function hasMastodonConnected(userId) {
 	const result = await db.query(
 		"SELECT 1 FROM mastodon_keys WHERE user_id = $1",
@@ -92,7 +132,13 @@ export default {
 	getByUsername,
 	addMastodonKey,
 	getMastodonKey,
+	removeMastodonKey,
+	addBlueskyKey,
+	updateBlueskyKey,
+	getBlueskyKey,
+	removeBlueskyKey,
 	hasMastodonConnected,
+	hasBlueskyConnected,
 	ensureTargets,
 	upsertTargets,
 	getAllUsers,

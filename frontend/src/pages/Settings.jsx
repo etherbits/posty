@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTargetDraft } from "../hooks/useTargetDraft";
+import { BlueskyConnectModal } from "../components/BlueskyConnectModal";
 import styles from "./Settings.module.css";
 
 export function Settings({
 	user,
 	onConnectMastodon,
 	onDisconnectMastodon,
+	onConnectBluesky,
+	onDisconnectBluesky,
 	targets,
 	onUpdateTargets,
 	integrations,
@@ -13,6 +16,7 @@ export function Settings({
 	isAdmin,
 }) {
 	const [isWorking, setIsWorking] = useState(false);
+	const [isBlueskyModalOpen, setIsBlueskyModalOpen] = useState(false);
 	const [draftIntegrations, setDraftIntegrations] = useState({
 		mastodonEnabled: true,
 		blueskyEnabled: false,
@@ -44,6 +48,21 @@ export function Settings({
 		} finally {
 			setIsWorking(false);
 		}
+	};
+
+	const handleBlueskyAction = async () => {
+		if (isWorking) return;
+		if (!draftIntegrations.blueskyEnabled) return;
+		if (blueskyConnected) {
+			setIsWorking(true);
+			try {
+				await onDisconnectBluesky();
+			} finally {
+				setIsWorking(false);
+			}
+			return;
+		}
+		setIsBlueskyModalOpen(true);
 	};
 
 	const handleIntegrationToggle = async (key) => {
@@ -187,13 +206,24 @@ export function Settings({
 						<button
 							type="button"
 							className={styles.secondaryButton}
-							disabled={!blueskyEnabled || !blueskyConnected}
+							onClick={handleBlueskyAction}
+							disabled={isWorking || !blueskyEnabled}
 						>
-							{blueskyEnabled ? "Connect" : "Disabled"}
+							{blueskyEnabled
+								? blueskyConnected
+									? "Disconnect"
+									: "Connect"
+								: "Disabled"}
 						</button>
 					</div>
 				</div>
 			</section>
+
+			<BlueskyConnectModal
+				isOpen={isBlueskyModalOpen}
+				onClose={() => setIsBlueskyModalOpen(false)}
+				onConnect={onConnectBluesky}
+			/>
 
 			<section className={styles.section}>
 				<h3 className={styles.sectionTitle}>Targets</h3>

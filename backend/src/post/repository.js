@@ -6,12 +6,26 @@ async function create(
 	scheduledTime,
 	visibility,
 	mediaIds,
+	blueskyMedia,
 	status,
 	platforms,
 ) {
+	const normalizedBlueskyMedia =
+		blueskyMedia === undefined || blueskyMedia === null
+			? null
+			: JSON.stringify(blueskyMedia);
 	const result = await db.query(
-		"INSERT INTO posts(user_id, content, scheduled_time, visibility, media_ids, status, platforms) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-		[userId, content, scheduledTime, visibility, mediaIds, status, platforms],
+		"INSERT INTO posts(user_id, content, scheduled_time, visibility, media_ids, bluesky_media, status, platforms) VALUES($1, $2, $3, $4, $5, $6::jsonb, $7, $8) RETURNING *",
+		[
+			userId,
+			content,
+			scheduledTime,
+			visibility,
+			mediaIds,
+			normalizedBlueskyMedia,
+			status,
+			platforms,
+		],
 	);
 
 	const post = result.rows[0];
@@ -27,10 +41,45 @@ async function getDue() {
 	return posts.rows;
 }
 
-async function updateAsSent(postId, mastodonId, url) {
+async function updateDelivery(
+	postId,
+	{ mastodonId, mastodonUrl, blueskyUri, blueskyCid, blueskyUrl, status },
+) {
+	const fields = [];
+	const values = [];
+	let idx = 1;
+
+	if (mastodonUrl !== undefined) {
+		fields.push(`url = $${idx++}`);
+		values.push(mastodonUrl);
+	}
+	if (mastodonId !== undefined) {
+		fields.push(`mastodon_id = $${idx++}`);
+		values.push(mastodonId);
+	}
+	if (blueskyUri !== undefined) {
+		fields.push(`bluesky_uri = $${idx++}`);
+		values.push(blueskyUri);
+	}
+	if (blueskyCid !== undefined) {
+		fields.push(`bluesky_cid = $${idx++}`);
+		values.push(blueskyCid);
+	}
+	if (blueskyUrl !== undefined) {
+		fields.push(`bluesky_url = $${idx++}`);
+		values.push(blueskyUrl);
+	}
+	if (status !== undefined) {
+		fields.push(`status = $${idx++}`);
+		values.push(status);
+	}
+
+	if (!fields.length) return;
+
+	values.push(postId);
 	await db.query(
-		"UPDATE posts SET status = 'sent', url = $1, mastodon_id = $2 WHERE id = $3",
-		[url, mastodonId, postId],
+		`UPDATE posts SET ${fields.join(", ")} WHERE id = $${idx}`,
+		values,
 	);
 }
 
@@ -109,17 +158,23 @@ async function updateOwnPost(
 	scheduledTime,
 	visibility,
 	mediaIds,
+	blueskyMedia,
 	platforms,
 	status,
 	userId,
 ) {
+	const normalizedBlueskyMedia =
+		blueskyMedia === undefined || blueskyMedia === null
+			? null
+			: JSON.stringify(blueskyMedia);
 	const result = await db.query(
-		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, platforms = COALESCE($5, platforms), status = COALESCE($6, status) WHERE id = $7 AND status != 'sent' AND user_id = $8 RETURNING *",
+		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, bluesky_media = COALESCE($5::jsonb, bluesky_media), platforms = COALESCE($6, platforms), status = COALESCE($7, status) WHERE id = $8 AND status != 'sent' AND user_id = $9 RETURNING *",
 		[
 			content,
 			scheduledTime,
 			visibility,
 			mediaIds,
+			normalizedBlueskyMedia,
 			platforms,
 			status,
 			postId,
@@ -135,16 +190,22 @@ async function updatePost(
 	scheduledTime,
 	visibility,
 	mediaIds,
+	blueskyMedia,
 	platforms,
 	status,
 ) {
+	const normalizedBlueskyMedia =
+		blueskyMedia === undefined || blueskyMedia === null
+			? null
+			: JSON.stringify(blueskyMedia);
 	const result = await db.query(
-		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, platforms = COALESCE($5, platforms), status = COALESCE($6, status) WHERE id = $7 AND status != 'sent' RETURNING *",
+		"UPDATE posts SET content = $1, scheduled_time = $2, visibility = $3, media_ids = $4, bluesky_media = COALESCE($5::jsonb, bluesky_media), platforms = COALESCE($6, platforms), status = COALESCE($7, status) WHERE id = $8 AND status != 'sent' RETURNING *",
 		[
 			content,
 			scheduledTime,
 			visibility,
 			mediaIds,
+			normalizedBlueskyMedia,
 			platforms,
 			status,
 			postId,
@@ -167,7 +228,7 @@ async function deletePost(postId) {
 export default {
 	create,
 	getDue,
-	updateAsSent,
+	updateDelivery,
 	getOwnedPosts,
 	getPosts,
 	getOwnedPostsPaginated,

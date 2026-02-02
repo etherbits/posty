@@ -210,3 +210,41 @@
     justify-content: space-between;
   }
 }
+
+@media (max-width: 640px) {
+  .card {
+    padding: 18px 18px 16px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .refresh,
+  .timer {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filters {
+    gap: 8px;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .pageNumbers {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .pageButton {
+    flex: 1;
+    justify-content: center;
+  }
+}

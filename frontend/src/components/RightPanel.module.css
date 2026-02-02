@@ -15,6 +15,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
 }
 
 .greeting {
@@ -127,8 +128,28 @@
   box-shadow: 0 12px 24px rgba(79, 70, 186, 0.25);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .panel {
     padding-top: 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .panel {
+    padding: 22px 18px 26px;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 16px;
+  }
+
+  .profileName {
+    font-size: 16px;
+  }
+
+  .statsRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

@@ -29,11 +29,14 @@ function App() {
 		logout,
 		connectMastodon,
 		disconnectMastodon,
+		connectBluesky,
+		disconnectBluesky,
 		canViewPosts,
 	} = useAuth();
 
 	const {
 		posts,
+		analyticsPosts,
 		pagination,
 		editingPostId,
 		editForm,
@@ -122,7 +125,10 @@ function App() {
 							isAdmin ? (
 								<Navigate to="/users" replace />
 							) : (
-								<Dashboard posts={canViewPosts ? posts : []} targets={targets} />
+								<Dashboard
+									posts={canViewPosts ? analyticsPosts : []}
+									targets={targets}
+								/>
 							)
 						}
 					/>
@@ -174,6 +180,8 @@ function App() {
 								user={user}
 								onConnectMastodon={connectMastodon}
 								onDisconnectMastodon={disconnectMastodon}
+								onConnectBluesky={connectBluesky}
+								onDisconnectBluesky={disconnectBluesky}
 								targets={targets}
 								onUpdateTargets={updateTargets}
 								integrations={integrations}

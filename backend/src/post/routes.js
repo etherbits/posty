@@ -6,7 +6,14 @@ import PostRepository from "./repository.js";
 import PostParser from "./schemas.js";
 import { enrichPosts } from "./utils.js";
 import SettingsRepository from "../settings/repository.js";
+import { blueskyProvider, mastodonProvider } from "../lib/providers/index.js";
 
+const MASTODON_MEDIA_MAX_BYTES = 8 * 1024 * 1024;
+const BLUESKY_MEDIA_MAX_BYTES = 1 * 1024 * 1024;
+const MAX_MEDIA_BYTES = Math.min(
+	MASTODON_MEDIA_MAX_BYTES,
+	BLUESKY_MEDIA_MAX_BYTES,
+);
 const upload = multer({ storage: multer.memoryStorage() });
 
 const router = Router();
@@ -18,8 +25,15 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 		return res.status(400).json(error);
 	}
 
-	const { content, scheduledTime, visibility, mediaIds, status, platforms } =
-		parsedBody;
+	const {
+		content,
+		scheduledTime,
+		visibility,
+		mediaIds,
+		blueskyMedia,
+		status,
+		platforms,
+	} = parsedBody;
 
 	const user = await UserRepository.getByUsername(req.user.username);
 
@@ -61,6 +75,7 @@ router.post("/schedule", authMiddleware, async (req, res) => {
 		normalizedSchedule,
 		visibility,
 		mediaIds,
+		blueskyMedia,
 		nextStatus,
 		normalizedPlatforms,
 	);
@@ -76,6 +91,10 @@ router.post(
 	async (req, res) => {
 		if (!req.file) {
 			return res.status(400).json({ message: "No file uploaded" });
+		}
+
+		if (req.file.size > MAX_MEDIA_BYTES) {
+			return res.status(413).json({ error: "File exceeds max upload size" });
 		}
 
 		const user = await UserRepository.getByUsername(req.user.username);
@@ -95,38 +114,84 @@ router.post(
 				.json({ error: "Mastodon integration is disabled" });
 		}
 
-		const form = new FormData();
-		const blob = new Blob([req.file.buffer], { type: req.file.mimetype });
-		form.append("file", blob, req.file.originalname);
+		const media = await mastodonProvider.uploadMedia({
+			userId: user.id,
+			fileBuffer: req.file.buffer,
+			fileName: req.file.originalname,
+			mimeType: req.file.mimetype,
+		});
 
-		const accessToken = await UserRepository.getMastodonKey(user.id);
-
-		if (!accessToken) {
-			return res.status(400).json({ error: "Mastodon account not connected" });
-		}
-
-		const mediaResponse = await fetch(
-			`${process.env.MASTODON_BASE_URL}/api/v2/media`,
-			{
-				method: "POST",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: form,
-			},
-		);
-
-		if (!mediaResponse.ok) {
-			const error = await mediaResponse.text();
-			console.error("Mastodon media upload error:", error);
+		if (!media) {
 			return res.status(500).json({ error: "Failed to upload media" });
 		}
-
-		const media = await mediaResponse.json();
 
 		return res.status(201).json(media);
 	},
 );
+
+router.post(
+	"/upload-media/bluesky",
+	upload.single("file"),
+	authMiddleware,
+	async (req, res) => {
+		if (!req.file) {
+			return res.status(400).json({ message: "No file uploaded" });
+		}
+
+		if (req.file.size > MAX_MEDIA_BYTES) {
+			return res.status(413).json({ error: "File exceeds max upload size" });
+		}
+
+		if (!req.file.mimetype?.startsWith("image/")) {
+			return res.status(400).json({ error: "Bluesky supports images only" });
+		}
+
+		const user = await UserRepository.getByUsername(req.user.username);
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		if (user.role === "admin") {
+			return res.status(403).json({ error: "Admins cannot upload media" });
+		}
+
+		const integrations = await SettingsRepository.ensureIntegrations();
+		if (!integrations.blueskyEnabled) {
+			return res
+				.status(400)
+				.json({ error: "Bluesky integration is disabled" });
+		}
+
+		const blob = await blueskyProvider.uploadMedia({
+			userId: user.id,
+			fileBuffer: req.file.buffer,
+			mimeType: req.file.mimetype,
+		});
+
+		if (!blob) {
+			return res.status(500).json({ error: "Failed to upload media" });
+		}
+
+		return res.status(201).json({ blob });
+	},
+);
+
+router.get("/analytics", authMiddleware, async (req, res) => {
+	const user = await UserRepository.getByUsername(req.user.username);
+
+	if (!user) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	const posts =
+		user.role === "admin"
+			? await PostRepository.getPosts()
+			: await PostRepository.getOwnedPosts(user.id);
+	const enrichedPosts = await enrichPosts(posts);
+
+	return res.status(200).json({ posts: enrichedPosts });
+});
 
 router.get("/all", authMiddleware, async (req, res) => {
 	// Pagination parameters
@@ -174,8 +239,15 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 		return res.status(400).json(error);
 	}
 
-	const { content, scheduledTime, visibility, mediaIds, status, platforms } =
-		parsedBody;
+	const {
+		content,
+		scheduledTime,
+		visibility,
+		mediaIds,
+		blueskyMedia,
+		status,
+		platforms,
+	} = parsedBody;
 	const hasSchedule = Boolean(scheduledTime);
 	const normalizedSchedule = hasSchedule ? scheduledTime : null;
 	const normalizedPlatforms =
@@ -200,6 +272,7 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 					normalizedSchedule,
 					visibility,
 					mediaIds,
+					blueskyMedia,
 					normalizedPlatforms,
 					nextStatus,
 				)
@@ -209,6 +282,7 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 					normalizedSchedule,
 					visibility,
 					mediaIds,
+					blueskyMedia,
 					normalizedPlatforms,
 					nextStatus,
 					user.id,

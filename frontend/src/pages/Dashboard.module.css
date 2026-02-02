@@ -196,10 +196,43 @@
 	.dashboard {
 		padding: 18px 0 32px;
 	}
+
+	.statCard {
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 22px 22px;
+		min-height: unset;
+	}
+
+	.statDivider {
+		display: none;
+	}
+
+	.progressRing {
+		align-self: flex-start;
+	}
+}
+
+@media (max-width: 700px) {
+	.sectionHeader {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 6px;
+	}
 }
 
 @media (max-width: 640px) {
 	.kpiGrid {
 		grid-template-columns: 1fr;
+	}
+}
+
+@media (max-width: 480px) {
+	.sectionTitle {
+		font-size: 16px;
+	}
+
+	.eyebrow {
+		font-size: 12px;
 	}
 }

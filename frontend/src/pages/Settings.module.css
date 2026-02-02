@@ -268,3 +268,42 @@
 		grid-template-columns: 1fr;
 	}
 }
+
+@media (max-width: 640px) {
+	.toggleCard,
+	.accountCard {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.accountButton {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.switch {
+		align-self: flex-start;
+	}
+
+	.targetsCard {
+		padding: 18px 18px;
+	}
+}
+
+@media (max-width: 480px) {
+	.targetInputWrap {
+		flex-wrap: wrap;
+	}
+
+	.targetUnit {
+		width: 100%;
+	}
+
+	.title {
+		font-size: 20px;
+	}
+
+	.subtitle {
+		font-size: 12px;
+	}
+}
