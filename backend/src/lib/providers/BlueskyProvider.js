@@ -212,30 +212,58 @@ export default class BlueskyProvider extends BaseProvider {
 			return new Map();
 		}
 
-		const uriChunks = chunkArray(
-			postsToEnrich.map((post) => post.bluesky_uri),
-			MAX_BATCH,
+		const postsByUser = new Map();
+		for (const post of postsToEnrich) {
+			if (!postsByUser.has(post.user_id)) {
+				postsByUser.set(post.user_id, []);
+			}
+			postsByUser.get(post.user_id).push(post);
+		}
+
+		const sessionEntries = await Promise.all(
+			Array.from(postsByUser.keys()).map(async (userId) => [
+				userId,
+				await this.getSession(userId),
+			]),
 		);
+		const sessionMap = new Map(sessionEntries.filter(([, session]) => session));
 
 		const responses = await Promise.all(
-			uriChunks.map(async (uris) => {
-				const params = new URLSearchParams();
-				uris.forEach((uri) => params.append("uris", uri));
-				try {
-					const response = await fetch(
-						`${BASE_URL}/xrpc/app.bsky.feed.getPosts?${params.toString()}`,
-					);
-					if (!response.ok) {
-						const error = await response.text();
-						console.error("Bluesky enrich error:", error);
-						return [];
-					}
-					const data = await response.json();
-					return data.posts || [];
-				} catch (error) {
-					console.error("Bluesky enrich request failed:", error);
-					return [];
-				}
+			Array.from(postsByUser.entries()).map(async ([userId, userPosts]) => {
+				const session = sessionMap.get(userId);
+				if (!session) return [];
+				const uriChunks = chunkArray(
+					userPosts.map((post) => post.bluesky_uri),
+					MAX_BATCH,
+				);
+				const chunkResponses = await Promise.all(
+					uriChunks.map(async (uris) => {
+						const params = new URLSearchParams();
+						uris.forEach((uri) => params.append("uris", uri));
+						try {
+							const response = await fetch(
+								`${BASE_URL}/xrpc/app.bsky.feed.getPosts?${params.toString()}`,
+								{
+									headers: {
+										Authorization: `Bearer ${session.accessJwt}`,
+									},
+								},
+							);
+
+							if (!response.ok) {
+								const error = await response.text();
+								console.error("Bluesky enrich error:", error);
+								return [];
+							}
+							const data = await response.json();
+							return data.posts || [];
+						} catch (error) {
+							console.error("Bluesky enrich request failed:", error);
+							return [];
+						}
+					}),
+				);
+				return chunkResponses.flat();
 			}),
 		);
 
