@@ -32,6 +32,7 @@ export function usePosts() {
 
 	// Lock to prevent duplicate concurrent fetches
 	const isFetchingRef = useRef(false);
+	const sentCountRef = useRef(null);
 	const isFetchingAnalyticsRef = useRef(false);
 
 	const fetchAnalytics = useCallback(async () => {
@@ -86,6 +87,17 @@ export function usePosts() {
 			setPagination(data.pagination);
 			if (data.stats) {
 				setStats(data.stats);
+				if (typeof data.stats.sent === "number") {
+					if (sentCountRef.current !== null) {
+						const diff = data.stats.sent - sentCountRef.current;
+						if (diff > 0) {
+							notifySuccess(
+								`${diff} post${diff === 1 ? "" : "s"} have been sent!`,
+							);
+						}
+					}
+					sentCountRef.current = data.stats.sent;
+				}
 			}
 			fetchAnalytics();
 		} catch (error) {

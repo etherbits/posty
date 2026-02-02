@@ -59,10 +59,8 @@ function App() {
 	const { targets, updateTargets } = useTargets(isAuthenticated);
 	const isAdmin = user?.role === "admin";
 	const { integrations, updateIntegrations } = useIntegrations(isAuthenticated);
-	const { users, isLoadingUsers, refreshUsers } = useUsers(
-		isAuthenticated,
-		isAdmin,
-	);
+	const { users, isLoadingUsers, refreshUsers, updateUserRole, deleteUser } =
+		useUsers(isAuthenticated, isAdmin);
 
 	const didFetchRef = useRef(false);
 
@@ -140,6 +138,8 @@ function App() {
 									users={users}
 									isLoading={isLoadingUsers}
 									onRefresh={refreshUsers}
+									onUpdateRole={updateUserRole}
+									onDelete={deleteUser}
 								/>
 							) : (
 								<Navigate to="/" replace />

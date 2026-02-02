@@ -16,6 +16,23 @@
 	gap: 12px;
 }
 
+.roleControls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.roleSelect {
+	padding: 6px 10px;
+	border-radius: 10px;
+	border: 1px solid #e4e7f0;
+	background: #f8f9fc;
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-indigo);
+	text-transform: capitalize;
+}
+
 .profile {
 	display: flex;
 	align-items: center;
@@ -69,6 +86,25 @@
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.deleteButton {
+	padding: 8px 12px;
+	border-radius: 10px;
+	background: rgba(239, 102, 102, 0.15);
+	color: #ef6666;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.deleteButton:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
 }
 
 .metaItem {

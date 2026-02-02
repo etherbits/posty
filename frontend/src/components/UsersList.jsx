@@ -2,7 +2,13 @@ import { RefreshCw, UserX } from "lucide-react";
 import { UserCard } from "./UserCard";
 import styles from "./UsersList.module.css";
 
-export function UsersList({ users, isLoading, onRefresh = () => {} }) {
+export function UsersList({
+	users,
+	isLoading,
+	onRefresh = () => {},
+	onUpdateRole = async () => false,
+	onDelete = async () => false,
+}) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.header}>
@@ -36,7 +42,12 @@ export function UsersList({ users, isLoading, onRefresh = () => {} }) {
 			) : (
 				<div className={styles.grid}>
 					{users.map((user) => (
-						<UserCard key={user.id} user={user} />
+						<UserCard
+							key={user.id}
+							user={user}
+							onUpdateRole={onUpdateRole}
+							onDelete={onDelete}
+						/>
 					))}
 				</div>
 			)}

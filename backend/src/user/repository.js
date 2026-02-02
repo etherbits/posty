@@ -19,6 +19,11 @@ async function getByUsername(username) {
 	return user;
 }
 
+async function getById(userId) {
+	const result = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+	return result.rows[0];
+}
+
 async function addMastodonKey(userId, mastodonKey) {
 	// First remove if any were added in the past
 	await db.query("DELETE FROM mastodon_keys WHERE user_id = $1", [userId]);
@@ -80,6 +85,18 @@ async function hasBlueskyConnected(userId) {
 	return result.rows.length > 0;
 }
 
+async function updateRole(userId, role) {
+	const result = await db.query(
+		"UPDATE users SET role = $1 WHERE id = $2 RETURNING *",
+		[role, userId],
+	);
+	return result.rows[0];
+}
+
+async function deleteUser(userId) {
+	await db.query("DELETE FROM users WHERE id = $1", [userId]);
+}
+
 async function hasMastodonConnected(userId) {
 	const result = await db.query(
 		"SELECT 1 FROM mastodon_keys WHERE user_id = $1",
@@ -130,6 +147,7 @@ async function getAllUsers() {
 export default {
 	create,
 	getByUsername,
+	getById,
 	addMastodonKey,
 	getMastodonKey,
 	removeMastodonKey,
@@ -142,4 +160,6 @@ export default {
 	ensureTargets,
 	upsertTargets,
 	getAllUsers,
+	updateRole,
+	deleteUser,
 };

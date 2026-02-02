@@ -5,6 +5,11 @@ const targetsSchema = Joi.object({
 	monthlyTarget: Joi.number().integer().min(0).required(),
 });
 
+const roleSchema = Joi.object({
+	role: Joi.string().valid("user", "admin").required(),
+});
+
 export default {
 	targetsSchema,
+	roleSchema,
 };

@@ -138,135 +138,141 @@ export function Settings({
 				</section>
 			)}
 
-			<section className={styles.section}>
-				<h3 className={styles.sectionTitle}>Social Accounts</h3>
-				<div className={styles.cardsGrid}>
-					<div className={styles.accountCard}>
-						<div className={styles.accountIcon}>
-							<img
-								src="/vectors/mastodon.svg"
-								alt="Mastodon"
-								className={styles.accountIconInner}
-							/>
-						</div>
-						<div className={styles.accountInfo}>
-							<p className={styles.accountName}>Mastodon</p>
-							<p className={styles.accountStatus}>
+			{!isAdmin && (
+				<section className={styles.section}>
+					<h3 className={styles.sectionTitle}>Social Accounts</h3>
+					<div className={styles.cardsGrid}>
+						<div className={styles.accountCard}>
+							<div className={styles.accountIcon}>
+								<img
+									src="/vectors/mastodon.svg"
+									alt="Mastodon"
+									className={styles.accountIconInner}
+								/>
+							</div>
+							<div className={styles.accountInfo}>
+								<p className={styles.accountName}>Mastodon</p>
+								<p className={styles.accountStatus}>
+									{mastodonEnabled
+										? user?.hasMastodonConnected
+											? "Connected"
+											: "Not connected"
+										: "Disabled"}
+								</p>
+							</div>
+							<button
+								type="button"
+								className={`${styles.accountButton} ${
+									user?.hasMastodonConnected
+										? styles.secondaryButton
+										: styles.primaryButton
+								}`}
+								onClick={handleMastodonAction}
+								disabled={isWorking || !mastodonEnabled}
+							>
 								{mastodonEnabled
 									? user?.hasMastodonConnected
-										? "Connected"
-										: "Not connected"
+										? "Disconnect"
+										: "Connect"
 									: "Disabled"}
-							</p>
+							</button>
 						</div>
-						<button
-							type="button"
-							className={`${styles.accountButton} ${
-								user?.hasMastodonConnected
-									? styles.secondaryButton
-									: styles.primaryButton
-							}`}
-							onClick={handleMastodonAction}
-							disabled={isWorking || !mastodonEnabled}
-						>
-							{mastodonEnabled
-								? user?.hasMastodonConnected
-									? "Disconnect"
-									: "Connect"
-								: "Disabled"}
-						</button>
-					</div>
 
-					<div
-						className={`${styles.accountCard} ${
-							!blueskyConnected || !blueskyEnabled
-								? styles.accountDisabled
-								: ""
-						}`}
-					>
-						<div className={styles.accountIconAlt}>
-							<span
-								className={styles.accountIconSymbol}
-								style={{
-									WebkitMaskImage: "url(/vectors/bluesky.svg)",
-									maskImage: "url(/vectors/bluesky.svg)",
-								}}
-							/>
-						</div>
-						<div className={styles.accountInfo}>
-							<p className={styles.accountName}>Bluesky</p>
-							<p className={styles.accountStatus}>
+						<div
+							className={`${styles.accountCard} ${
+								!blueskyConnected || !blueskyEnabled
+									? styles.accountDisabled
+									: ""
+							}`}
+						>
+							<div className={styles.accountIconAlt}>
+								<span
+									className={styles.accountIconSymbol}
+									style={{
+										WebkitMaskImage: "url(/vectors/bluesky.svg)",
+										maskImage: "url(/vectors/bluesky.svg)",
+									}}
+								/>
+							</div>
+							<div className={styles.accountInfo}>
+								<p className={styles.accountName}>Bluesky</p>
+								<p className={styles.accountStatus}>
+									{blueskyEnabled
+										? blueskyConnected
+											? "Connected"
+											: "Not connected"
+										: "Disabled"}
+								</p>
+							</div>
+							<button
+								type="button"
+								className={`${styles.accountButton} ${styles.secondaryButton}`}
+								onClick={handleBlueskyAction}
+								disabled={isWorking || !blueskyEnabled}
+							>
 								{blueskyEnabled
 									? blueskyConnected
-										? "Connected"
-										: "Not connected"
+										? "Disconnect"
+										: "Connect"
 									: "Disabled"}
-							</p>
-						</div>
-						<button
-							type="button"
-							className={`${styles.accountButton} ${styles.secondaryButton}`}
-							onClick={handleBlueskyAction}
-							disabled={isWorking || !blueskyEnabled}
-						>
-							{blueskyEnabled
-								? blueskyConnected
-									? "Disconnect"
-									: "Connect"
-								: "Disabled"}
-						</button>
-					</div>
-				</div>
-			</section>
-
-			<BlueskyConnectModal
-				isOpen={isBlueskyModalOpen}
-				onClose={() => setIsBlueskyModalOpen(false)}
-				onConnect={onConnectBluesky}
-			/>
-
-			<section className={styles.section}>
-				<h3 className={styles.sectionTitle}>Targets</h3>
-				<div className={styles.targetsCard}>
-					<div className={styles.targetField}>
-						<label className={styles.targetLabel} htmlFor="weekly-target">
-							Weekly Target
-						</label>
-						<div className={styles.targetInputWrap}>
-							<input
-								id="weekly-target"
-								type="text"
-								inputMode="numeric"
-								placeholder="0"
-								value={draftTargets.weekly}
-								onChange={(event) => updateDraft("weekly", event.target.value)}
-								className={styles.targetInput}
-								disabled={isSaving}
-							/>
-							<span className={styles.targetUnit}>engagements</span>
+							</button>
 						</div>
 					</div>
+				</section>
+			)}
 
-					<div className={styles.targetField}>
-						<label className={styles.targetLabel} htmlFor="monthly-target">
-							Monthly Target
-						</label>
-						<div className={styles.targetInputWrap}>
-							<input
-								id="monthly-target"
-								type="text"
-								inputMode="numeric"
-								placeholder="0"
-								value={draftTargets.monthly}
-								onChange={(event) => updateDraft("monthly", event.target.value)}
-								className={styles.targetInput}
-								disabled={isSaving}
-							/>
-							<span className={styles.targetUnit}>engagements</span>
+			{!isAdmin && (
+				<BlueskyConnectModal
+					isOpen={isBlueskyModalOpen}
+					onClose={() => setIsBlueskyModalOpen(false)}
+					onConnect={onConnectBluesky}
+				/>
+			)}
+
+			{!isAdmin && (
+				<section className={styles.section}>
+					<h3 className={styles.sectionTitle}>Targets</h3>
+					<div className={styles.targetsCard}>
+						<div className={styles.targetField}>
+							<label className={styles.targetLabel} htmlFor="weekly-target">
+								Weekly Target
+							</label>
+							<div className={styles.targetInputWrap}>
+								<input
+									id="weekly-target"
+									type="text"
+									inputMode="numeric"
+									placeholder="0"
+									value={draftTargets.weekly}
+									onChange={(event) => updateDraft("weekly", event.target.value)}
+									className={styles.targetInput}
+									disabled={isSaving}
+								/>
+								<span className={styles.targetUnit}>engagements</span>
+							</div>
+						</div>
+
+						<div className={styles.targetField}>
+							<label className={styles.targetLabel} htmlFor="monthly-target">
+								Monthly Target
+							</label>
+							<div className={styles.targetInputWrap}>
+								<input
+									id="monthly-target"
+									type="text"
+									inputMode="numeric"
+									placeholder="0"
+									value={draftTargets.monthly}
+									onChange={(event) => updateDraft("monthly", event.target.value)}
+									className={styles.targetInput}
+									disabled={isSaving}
+								/>
+								<span className={styles.targetUnit}>engagements</span>
+							</div>
 						</div>
 					</div>
-				</div>
-			</section>
+				</section>
+			)}
 		</div>
 	);
 }

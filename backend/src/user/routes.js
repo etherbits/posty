@@ -28,6 +28,58 @@ router.get("/all", authMiddleware, async (req, res) => {
 	});
 });
 
+router.patch("/:id/role", authMiddleware, async (req, res) => {
+	const { value, error } = UserParser.roleSchema.validate(req.body);
+	if (error) {
+		return res.status(400).json({ error });
+	}
+
+	const adminUser = await UserRepository.getByUsername(req.user.username);
+
+	if (!adminUser) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	if (adminUser.role !== "admin") {
+		return res.status(403).json({ error: "Forbidden" });
+	}
+
+	const targetUser = await UserRepository.getById(req.params.id);
+	if (!targetUser) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	const updated = await UserRepository.updateRole(targetUser.id, value.role);
+	return res.status(200).json({
+		id: updated.id,
+		role: updated.role,
+	});
+});
+
+router.delete("/:id", authMiddleware, async (req, res) => {
+	const adminUser = await UserRepository.getByUsername(req.user.username);
+
+	if (!adminUser) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	if (adminUser.role !== "admin") {
+		return res.status(403).json({ error: "Forbidden" });
+	}
+
+	const targetUser = await UserRepository.getById(req.params.id);
+	if (!targetUser) {
+		return res.status(404).json({ error: "User not found" });
+	}
+
+	if (targetUser.role === "admin") {
+		return res.status(403).json({ error: "Cannot delete admin user" });
+	}
+
+	await UserRepository.deleteUser(targetUser.id);
+	return res.status(200).json({ success: true });
+});
+
 router.get("/targets", authMiddleware, async (req, res) => {
 	const targets = await UserRepository.ensureTargets(req.user.id);
 	return res.status(200).json({

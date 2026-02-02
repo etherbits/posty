@@ -1,7 +1,7 @@
 import { UsersList } from "../components/UsersList";
 import styles from "./Users.module.css";
 
-export function Users({ users, isLoading, onRefresh }) {
+export function Users({ users, isLoading, onRefresh, onUpdateRole, onDelete }) {
 	return (
 		<div className={styles.page}>
 			<div className={styles.header}>
@@ -12,7 +12,13 @@ export function Users({ users, isLoading, onRefresh }) {
 					</p>
 				</div>
 			</div>
-			<UsersList users={users} isLoading={isLoading} onRefresh={onRefresh} />
+			<UsersList
+				users={users}
+				isLoading={isLoading}
+				onRefresh={onRefresh}
+				onUpdateRole={onUpdateRole}
+				onDelete={onDelete}
+			/>
 		</div>
 	);
 }

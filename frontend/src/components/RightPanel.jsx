@@ -17,6 +17,7 @@ export function RightPanel({
 	const totalPosts = stats?.totalPosts ?? 0;
 	const sentPosts = stats?.sentPosts ?? 0;
 	const scheduledPosts = stats?.pendingPosts ?? 0;
+	const showStats = user?.role !== "admin";
 
 	return (
 		<aside
@@ -54,20 +55,28 @@ export function RightPanel({
 				<h3 className={styles.profileName}>{displayName}</h3>
 				<p className={styles.profileRole}>{roleLabel}</p>
 
-				<div className={styles.statsRow}>
-					<div className={styles.statBlock}>
-						<span className={styles.statValue}>{totalPosts.toLocaleString()}</span>
-						<span className={styles.statLabel}>Total Posts</span>
+				{showStats && (
+					<div className={styles.statsRow}>
+						<div className={styles.statBlock}>
+							<span className={styles.statValue}>
+								{totalPosts.toLocaleString()}
+							</span>
+							<span className={styles.statLabel}>Total Posts</span>
+						</div>
+						<div className={styles.statBlock}>
+							<span className={styles.statValue}>
+								{sentPosts.toLocaleString()}
+							</span>
+							<span className={styles.statLabel}>Sent Posts</span>
+						</div>
+						<div className={styles.statBlock}>
+							<span className={styles.statValue}>
+								{scheduledPosts.toLocaleString()}
+							</span>
+							<span className={styles.statLabel}>Scheduled Posts</span>
+						</div>
 					</div>
-					<div className={styles.statBlock}>
-						<span className={styles.statValue}>{sentPosts.toLocaleString()}</span>
-						<span className={styles.statLabel}>Sent Posts</span>
-					</div>
-					<div className={styles.statBlock}>
-						<span className={styles.statValue}>{scheduledPosts.toLocaleString()}</span>
-						<span className={styles.statLabel}>Scheduled Posts</span>
-					</div>
-				</div>
+				)}
 
 				<button type="button" className={styles.signOut} onClick={onLogout}>
 					Sign Out
