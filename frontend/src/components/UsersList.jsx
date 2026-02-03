@@ -1,5 +1,6 @@
 import { RefreshCw, UserX } from "lucide-react";
 import { UserCard } from "./UserCard";
+import { ListCardShell, ListEmptyState } from "./ListCardShell";
 import styles from "./UsersList.module.css";
 
 export function UsersList({
@@ -10,14 +11,11 @@ export function UsersList({
 	onDelete = async () => false,
 }) {
 	return (
-		<div className={styles.card}>
-			<div className={styles.header}>
-				<div>
-					<h3 className={styles.title}>All Users</h3>
-					<p className={styles.subtitle}>
-						{users.length} total {users.length === 1 ? "user" : "users"}
-					</p>
-				</div>
+		<ListCardShell
+			styles={styles}
+			title="All Users"
+			subtitle={`${users.length} total ${users.length === 1 ? "user" : "users"}`}
+			actions={
 				<button
 					className={styles.refresh}
 					type="button"
@@ -27,18 +25,19 @@ export function UsersList({
 					<RefreshCw size={16} />
 					Refresh
 				</button>
-			</div>
-
+			}
+		>
 			{isLoading ? (
 				<div className={styles.emptyState}>
 					<div className={styles.loading}>Loading users...</div>
 				</div>
 			) : users.length === 0 ? (
-				<div className={styles.emptyState}>
-					<UserX size={40} className={styles.emptyIcon} />
-					<h4>No users found</h4>
-					<p>New accounts will appear here once created.</p>
-				</div>
+				<ListEmptyState
+					styles={styles}
+					icon={UserX}
+					title="No users found"
+					description="New accounts will appear here once created."
+				/>
 			) : (
 				<div className={styles.grid}>
 					{users.map((user) => (
@@ -51,6 +50,6 @@ export function UsersList({
 					))}
 				</div>
 			)}
-		</div>
+		</ListCardShell>
 	);
 }

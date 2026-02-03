@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { notifyError, notifySuccess } from "../utils/toastHistory";
-
-const API_URL = "http://localhost:3000";
+import { API_URL } from "../config/api";
 const POSTS_PER_PAGE = 10;
 
 export function usePosts() {

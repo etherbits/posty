@@ -1,28 +1,10 @@
 import BaseProvider from "./BaseProvider.js";
 import UserRepository from "../../user/repository.js";
+import { decodeJwtExpiry } from "../utils/jwt.js";
 
 const BASE_URL = "https://bsky.social";
 const REFRESH_LEEWAY_MS = 60 * 1000;
 const MAX_BATCH = 25;
-
-function decodeJwtExpiry(token) {
-	if (!token) return null;
-	const payload = token.split(".")[1];
-	if (!payload) return null;
-	const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-	const padded = normalized.padEnd(
-		normalized.length + ((4 - (normalized.length % 4)) % 4),
-		"=",
-	);
-	const json = Buffer.from(padded, "base64").toString("utf8");
-	try {
-		const data = JSON.parse(json);
-		if (!data.exp) return null;
-		return new Date(data.exp * 1000);
-	} catch {
-		return null;
-	}
-}
 
 function chunkArray(items, size) {
 	const chunks = [];

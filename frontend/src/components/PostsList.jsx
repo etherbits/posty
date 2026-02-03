@@ -7,6 +7,7 @@ import {
 	ChevronRight,
 } from "lucide-react";
 import { PostCard } from "./PostCard";
+import { ListCardShell, ListEmptyState } from "./ListCardShell";
 import styles from "./PostsList.module.css";
 
 export function PostsList({
@@ -120,16 +121,14 @@ export function PostsList({
 	};
 
 	return (
-		<div className={styles.card}>
-			<div className={styles.header}>
-				<div>
-					<h3 className={styles.title}>All Posts</h3>
-					<p className={styles.subtitle}>
-						{filteredPosts.length} of {posts.length} on this page •{" "}
-						{pagination.total} total
-					</p>
-				</div>
-				<div className={styles.actions}>
+		<ListCardShell
+			styles={styles}
+			title="All Posts"
+			subtitle={`${filteredPosts.length} of ${posts.length} on this page • ${
+				pagination.total
+			} total`}
+			actions={
+				<>
 					<div className={styles.timer}>
 						<Clock size={12} />
 						<span>{countdown}s</span>
@@ -138,9 +137,9 @@ export function PostsList({
 						<RefreshCw size={16} />
 						Refresh
 					</button>
-				</div>
-			</div>
-
+				</>
+			}
+		>
 			<div className={styles.filters}>
 				{filterOptions.map((option) => (
 					<button
@@ -161,17 +160,18 @@ export function PostsList({
 
 			<div className={styles.list}>
 				{filteredPosts.length === 0 ? (
-					<div className={styles.emptyState}>
-						<FileText size={40} className={styles.emptyIcon} />
-						<h4>No posts found</h4>
-						<p>
-							{posts.length === 0
+					<ListEmptyState
+						styles={styles}
+						icon={FileText}
+						title="No posts found"
+						description={
+							posts.length === 0
 								? canCreate
 									? "Create a new post to get started."
 									: "Posts will appear here once your team starts publishing."
-								: "Try adjusting your filters."}
-						</p>
-					</div>
+								: "Try adjusting your filters."
+						}
+					/>
 				) : (
 					<div className={styles.grid}>
 						{filteredPosts.map((post) => (
@@ -243,6 +243,6 @@ export function PostsList({
 					{pagination.total} posts
 				</div>
 			)}
-		</div>
+		</ListCardShell>
 	);
 }

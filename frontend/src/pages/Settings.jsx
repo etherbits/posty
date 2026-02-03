@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTargetDraft } from "../hooks/useTargetDraft";
 import { BlueskyConnectModal } from "../components/BlueskyConnectModal";
+import { PageHeader, PageLayout } from "../components/PageLayout";
 import styles from "./Settings.module.css";
 
 export function Settings({
@@ -88,13 +89,11 @@ export function Settings({
 	const blueskyEnabled = draftIntegrations.blueskyEnabled;
 
 	return (
-		<div className={styles.page}>
-			<div className={styles.header}>
-				<div>
-					<h2 className={styles.title}>Settings</h2>
-					<p className={styles.subtitle}>Manage integrations and targets.</p>
-				</div>
-			</div>
+		<PageLayout>
+			<PageHeader
+				title="Settings"
+				subtitle="Manage integrations and targets."
+			/>
 
 			{isAdmin && (
 				<section className={styles.section}>
@@ -273,6 +272,6 @@ export function Settings({
 					</div>
 				</section>
 			)}
-		</div>
+		</PageLayout>
 	);
 }

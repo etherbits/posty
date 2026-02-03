@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notifyError } from "../utils/toastHistory";
-
-const API_URL = "http://localhost:3000";
+import { API_URL } from "../config/api";
 const DEFAULT_TARGETS = { weekly: 10, monthly: 50 };
 
 export function useTargets(isAuthenticated) {

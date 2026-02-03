@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { ActivityChart } from "../components/ActivityChart";
+import { PageLayout } from "../components/PageLayout";
+import { StatsCard } from "../components/StatsCard";
 import styles from "./Dashboard.module.css";
 
 const DEFAULT_TARGETS = {
@@ -79,7 +81,7 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 	};
 
 	return (
-		<div className={styles.dashboard}>
+		<PageLayout>
 			<p className={styles.eyebrow}>Social Media Analytics Dashboard</p>
 
 			<section className={styles.section}>
@@ -88,9 +90,11 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 				</div>
 				<div className={styles.kpiGrid}>
 					{kpiData.map((item) => (
-						<div
+						<StatsCard
 							key={item.label}
-							className={`${styles.kpiCard} ${variantClasses[item.variant]}`}
+							variant="kpi"
+							className={variantClasses[item.variant]}
+							styles={styles}
 						>
 							<span className={styles.kpiLabel}>
 								{item.label.toUpperCase()}
@@ -98,7 +102,7 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 							<span className={styles.kpiValue}>
 								{item.value.toLocaleString()}
 							</span>
-						</div>
+						</StatsCard>
 					))}
 				</div>
 			</section>
@@ -115,7 +119,7 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 					<h3 className={styles.sectionTitle}>Statistics</h3>
 				</div>
 				<div className={styles.statsGrid}>
-					<div className={styles.statCard}>
+					<StatsCard variant="progress" styles={styles}>
 						<div className={styles.statInfo}>
 							<p className={styles.statTitle}>Weekly Target</p>
 							<p className={styles.statSubtitle}>{weeklyProgress}% achieved</p>
@@ -132,11 +136,17 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 						>
 							<span>{weeklyProgress}%</span>
 						</div>
-					</div>
-					<div className={`${styles.statCard} ${styles.statCardPrimary}`}>
+					</StatsCard>
+					<StatsCard
+						variant="progress"
+						className={styles.statCardPrimary}
+						styles={styles}
+					>
 						<div className={styles.statInfo}>
 							<p className={styles.statTitleLight}>Montly Target</p>
-							<p className={styles.statSubtitleLight}>{monthlyProgress}% achieved</p>
+							<p className={styles.statSubtitleLight}>
+								{monthlyProgress}% achieved
+							</p>
 						</div>
 						<div
 							className={`${styles.statDivider} ${styles.statDividerLight}`}
@@ -152,9 +162,9 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 						>
 							<span>{monthlyProgress}%</span>
 						</div>
-					</div>
+					</StatsCard>
 				</div>
 			</section>
-		</div>
+		</PageLayout>
 	);
 }

@@ -1,17 +1,13 @@
+import { PageHeader, PageLayout } from "../components/PageLayout";
 import { UsersList } from "../components/UsersList";
-import styles from "./Users.module.css";
 
 export function Users({ users, isLoading, onRefresh, onUpdateRole, onDelete }) {
 	return (
-		<div className={styles.page}>
-			<div className={styles.header}>
-				<div>
-					<h2 className={styles.title}>Users</h2>
-					<p className={styles.subtitle}>
-						Manage user access and social connections.
-					</p>
-				</div>
-			</div>
+		<PageLayout>
+			<PageHeader
+				title="Users"
+				subtitle="Manage user access and social connections."
+			/>
 			<UsersList
 				users={users}
 				isLoading={isLoading}
@@ -19,6 +15,6 @@ export function Users({ users, isLoading, onRefresh, onUpdateRole, onDelete }) {
 				onUpdateRole={onUpdateRole}
 				onDelete={onDelete}
 			/>
-		</div>
+		</PageLayout>
 	);
 }

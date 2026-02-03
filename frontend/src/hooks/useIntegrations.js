@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { notifyError, notifySuccess } from "../utils/toastHistory";
-
-const API_URL = "http://localhost:3000";
+import { API_URL } from "../config/api";
 const DEFAULT_INTEGRATIONS = {
 	mastodonEnabled: true,
 	blueskyEnabled: true,

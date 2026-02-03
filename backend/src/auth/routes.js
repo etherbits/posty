@@ -7,27 +7,9 @@ import UserRepository from "../user/repository.js";
 import { extractProfileData } from "../user/utils.js";
 import SettingsRepository from "../settings/repository.js";
 import { blueskyProvider } from "../lib/providers/index.js";
+import { decodeJwtExpiry } from "../lib/utils/jwt.js";
 
 const router = Router();
-
-function decodeJwtExpiry(token) {
-	if (!token) return null;
-	const payload = token.split(".")[1];
-	if (!payload) return null;
-	const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-	const padded = normalized.padEnd(
-		normalized.length + ((4 - (normalized.length % 4)) % 4),
-		"=",
-	);
-	try {
-		const json = Buffer.from(padded, "base64").toString("utf8");
-		const data = JSON.parse(json);
-		if (!data.exp) return null;
-		return new Date(data.exp * 1000);
-	} catch {
-		return null;
-	}
-}
 
 router.post("/sign-up", async (req, res) => {
 	const { value: parsedBody, error } = AuthParser.signUpSchema.validate(

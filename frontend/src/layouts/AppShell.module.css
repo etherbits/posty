@@ -1,8 +1,8 @@
 .shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr) 320px;
-  background: var(--bg-center);
+	min-height: 100vh;
+	display: grid;
+	grid-template-columns: 240px minmax(0, 1fr) 320px;
+	background: var(--bg-center);
 }
 
 .sidebar {
@@ -198,6 +198,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    max-height: 72px;
     padding: 14px 16px;
     background: var(--bg-sidebar);
     border-bottom: 1px solid var(--border-color);
@@ -218,17 +219,21 @@
 }
 
 @media (max-width: 560px) {
-  .mobileHeader {
-    flex-wrap: wrap;
-    row-gap: 10px;
-  }
+	.mobileHeader {
+		flex-wrap: nowrap;
+	}
 
-  .mobileNav {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    padding-top: 4px;
-  }
+	.mobileNav {
+		flex: 1;
+		min-width: 0;
+		justify-content: center;
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.mobileNav::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 @media (max-width: 480px) {

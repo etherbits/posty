@@ -1,10 +1,3 @@
-.dashboard {
-	display: flex;
-	flex-direction: column;
-	gap: 28px;
-	padding: 24px 6px 40px;
-}
-
 .eyebrow {
 	font-size: 13px;
 	color: var(--text-muted);
@@ -193,10 +186,6 @@
 }
 
 @media (max-width: 900px) {
-	.dashboard {
-		padding: 18px 0 32px;
-	}
-
 	.statCard {
 		flex-direction: column;
 		align-items: flex-start;

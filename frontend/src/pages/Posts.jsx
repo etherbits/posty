@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { CreatePostModal } from "../components/CreatePostModal";
 import { PostsList } from "../components/PostsList";
+import { PageLayout, PageHeader } from "../components/PageLayout";
 import styles from "./Posts.module.css";
 
 export function Posts({
@@ -60,25 +61,23 @@ export function Posts({
 	};
 
 	return (
-		<div className={styles.page}>
-			<div className={styles.header}>
-				<div>
-					<h2 className={styles.title}>Posts</h2>
-					<p className={styles.subtitle}>
-						Manage your drafts, scheduled, and sent posts.
-					</p>
-				</div>
-				{canCreate && (
-					<button
-						type="button"
-						className={styles.newButton}
-						onClick={() => setIsModalOpen(true)}
-					>
-						<Plus size={16} />
-						New Post
-					</button>
-				)}
-			</div>
+		<PageLayout>
+			<PageHeader
+				title="Posts"
+				subtitle="Manage your drafts, scheduled, and sent posts."
+				actions={
+					canCreate ? (
+						<button
+							type="button"
+							className={styles.newButton}
+							onClick={() => setIsModalOpen(true)}
+						>
+							<Plus size={16} />
+							New Post
+						</button>
+					) : null
+				}
+			/>
 
 			<PostsList
 				posts={posts}
@@ -113,6 +112,6 @@ export function Posts({
 					linkedPlatforms={linkedPlatforms}
 				/>
 			)}
-		</div>
+		</PageLayout>
 	);
 }
