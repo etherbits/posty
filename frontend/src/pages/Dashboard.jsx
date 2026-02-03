@@ -41,8 +41,14 @@ function calculateProgress(value, target) {
 }
 
 export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
-	const monthlyEngagements = useMemo(() => computeEngagements(posts, 30), [posts]);
-	const weeklyEngagements = useMemo(() => computeEngagements(posts, 7), [posts]);
+	const monthlyEngagements = useMemo(
+		() => computeEngagements(posts, 30),
+		[posts],
+	);
+	const weeklyEngagements = useMemo(
+		() => computeEngagements(posts, 7),
+		[posts],
+	);
 	const weeklyTotal =
 		weeklyEngagements.favorites +
 		weeklyEngagements.replies +
@@ -156,7 +162,7 @@ export function Dashboard({ posts, targets = DEFAULT_TARGETS }) {
 							style={{
 								"--progress": monthlyProgress,
 								"--ring-accent": "#f9896b",
-								"--ring-base": "rgba(255, 255, 255, 0.35)",
+								"--ring-base": "#F6F6FC",
 								"--ring-center": "#4f46ba",
 							}}
 						>

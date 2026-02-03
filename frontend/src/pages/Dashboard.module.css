@@ -7,7 +7,7 @@
 .section {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 24px;
 }
 
 .sectionHeader {
@@ -19,13 +19,13 @@
 .sectionTitle {
 	font-size: 18px;
 	font-weight: 700;
-	color: var(--text-navy);
+	color: #000000;
 }
 
 .kpiGrid {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
-	gap: 18px;
+	gap: 32px;
 }
 
 .kpiCard {
@@ -69,7 +69,7 @@
 .statsGrid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 22px;
+	gap: 32px;
 }
 
 .statCard {
@@ -154,24 +154,18 @@
 }
 
 .progressRing > span {
-	width: 66px;
-	height: 66px;
+	width: 65px;
+	height: 65px;
 	border-radius: 50%;
 	background: var(--ring-center, var(--bg-card));
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-.progressRing > span > span {
-	margin-left: 4px;
-	margin-top: 3px;
+	font-size: 17px;
+	font-weight: 700;
 }
 
 .progressRingLight {
-	--ring-accent: #f9896b;
-	--ring-base: rgba(255, 255, 255, 0.35);
-	--ring-center: #4f46ba;
 	color: var(--text-white);
 }
 
