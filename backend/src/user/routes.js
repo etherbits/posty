@@ -24,6 +24,7 @@ router.get("/all", authMiddleware, async (req, res) => {
 			role: entry.role,
 			postsCount: Number(entry.posts_count || 0),
 			hasMastodonConnected: Boolean(entry.has_mastodon_connected),
+			hasBlueskyConnected: Boolean(entry.has_bluesky_connected),
 		})),
 	});
 });

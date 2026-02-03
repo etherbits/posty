@@ -10,6 +10,7 @@ import {
 	Link,
 	Repeat,
 } from "lucide-react";
+import { Dropdown } from "./Dropdown";
 import styles from "./PostCard.module.css";
 
 const statusLabels = {
@@ -107,16 +108,16 @@ export function PostCard({
 								<Eye size={14} />
 								Visibility
 							</label>
-						<select
-							value={editForm.visibility}
-							onChange={(e) =>
-								setEditForm({ ...editForm, visibility: e.target.value })
-							}
-							className={`${styles.editInput} ${styles.selectInput}`}
-						>
-							<option value="public">Public</option>
-							<option value="private">Private</option>
-						</select>
+					<Dropdown
+						value={editForm.visibility}
+						onChange={(e) =>
+							setEditForm({ ...editForm, visibility: e.target.value })
+						}
+						className={styles.editInput}
+					>
+						<option value="public">Public</option>
+						<option value="private">Private</option>
+					</Dropdown>
 						</div>
 
 						<div className={styles.editBlock}>

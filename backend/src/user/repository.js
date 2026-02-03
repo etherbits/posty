@@ -135,7 +135,10 @@ async function getAllUsers() {
 			COUNT(posts.id) AS posts_count,
 			EXISTS(
 				SELECT 1 FROM mastodon_keys WHERE mastodon_keys.user_id = users.id
-			) AS has_mastodon_connected
+			) AS has_mastodon_connected,
+			EXISTS(
+				SELECT 1 FROM bluesky_keys WHERE bluesky_keys.user_id = users.id
+			) AS has_bluesky_connected
 		FROM users
 		LEFT JOIN posts ON posts.user_id = users.id
 		GROUP BY users.id

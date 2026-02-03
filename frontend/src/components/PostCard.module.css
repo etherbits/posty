@@ -342,16 +342,6 @@
 	color: var(--text-dark);
 }
 
-.selectInput {
-	appearance: none;
-	-webkit-appearance: none;
-	background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237b8598' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
-	background-repeat: no-repeat;
-	background-position: right 12px center;
-	background-size: 12px 8px;
-	padding-right: 36px;
-}
-
 .editInput:focus {
 	outline: none;
 	border-color: var(--color-primary);

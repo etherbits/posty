@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Image, Calendar, Eye, Upload, X } from "lucide-react";
+import { Dropdown } from "./Dropdown";
 import { notifyError } from "../utils/toastHistory";
 import styles from "./CreatePostForm.module.css";
 
@@ -223,14 +224,14 @@ export function CreatePostForm({
 						<Eye size={14} />
 						Visibility
 					</label>
-				<select
+				<Dropdown
 					value={visibility}
 					onChange={(e) => setVisibility(e.target.value)}
-					className={`${styles.input} ${styles.selectInput}`}
+					className={styles.input}
 				>
 					<option value="public">Public</option>
 					<option value="private">Private</option>
-				</select>
+				</Dropdown>
 				</div>
 
 				<div className={styles.field}>

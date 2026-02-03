@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
+import { Dropdown } from "./Dropdown";
 import styles from "./UserCard.module.css";
-
-function getInitials(username) {
-	if (!username) return "U";
-	return username.slice(0, 1).toUpperCase();
-}
 
 export function UserCard({
 	user,
@@ -17,6 +13,8 @@ export function UserCard({
 	const roleLabel = role ? role.replace(/_/g, " ") : "user";
 	const postsCount = Number(user.postsCount || 0).toLocaleString();
 	const isMastodonConnected = Boolean(user.hasMastodonConnected);
+	const isBlueskyConnected = Boolean(user.hasBlueskyConnected);
+	const isAdmin = user.role === "admin";
 
 	useEffect(() => {
 		setRole(user.role || "user");
@@ -49,24 +47,40 @@ export function UserCard({
 
 	return (
 		<div className={styles.card}>
-			<div className={styles.header}>
+			<div className={styles.topRow}>
 				<div className={styles.profile}>
-					<div className={styles.avatar}>{getInitials(user.username)}</div>
+					<img
+						src="/images/default_user_image.jpg"
+						alt={`${user.username} avatar`}
+						className={styles.avatar}
+					/>
 					<div>
 						<p className={styles.name}>{user.username}</p>
 						<p className={styles.role}>{roleLabel}</p>
 					</div>
 				</div>
-				<div className={styles.roleControls}>
-					<select
+				<div className={styles.controls}>
+					{!isAdmin && (
+						<button
+							type="button"
+							className={styles.deleteButton}
+							onClick={handleDelete}
+							disabled={isDeleting || isUpdating}
+						>
+							Delete user
+						</button>
+					)}
+					<Dropdown
 						value={role}
 						onChange={handleRoleChange}
 						className={styles.roleSelect}
+						wrapperClassName={styles.roleSelectWrap}
+						fullWidth={false}
 						disabled={isUpdating || isDeleting}
 					>
 						<option value="user">User</option>
 						<option value="admin">Admin</option>
-					</select>
+					</Dropdown>
 					<span
 						className={`${styles.badge} ${
 							role === "admin" ? styles.badgeAdmin : styles.badgeUser
@@ -76,33 +90,40 @@ export function UserCard({
 					</span>
 				</div>
 			</div>
-			<div className={styles.meta}>
-				<div className={styles.metaItem}>
-					<span className={styles.metaLabel}>Posts</span>
-					<span className={styles.metaValue}>{postsCount}</span>
+			{!isAdmin && (
+				<div className={styles.bottomRow}>
+					<div className={styles.metaItem}>
+						<span className={styles.metaLabel}>Posts</span>
+						<span className={styles.metaValue}>{postsCount}</span>
+					</div>
+					<div className={styles.metaItem}>
+						<span className={styles.metaLabel}>Mastodon</span>
+						<span
+							className={`${styles.status} ${
+								isMastodonConnected
+									? styles.statusActive
+									: styles.statusInactive
+							}`}
+						>
+							<span className={styles.statusDot} />
+							{isMastodonConnected ? "Connected" : "Not connected"}
+						</span>
+					</div>
+					<div className={styles.metaItem}>
+						<span className={styles.metaLabel}>Bluesky</span>
+						<span
+							className={`${styles.status} ${
+								isBlueskyConnected
+									? styles.statusActive
+									: styles.statusInactive
+							}`}
+						>
+							<span className={styles.statusDot} />
+							{isBlueskyConnected ? "Connected" : "Not connected"}
+						</span>
+					</div>
 				</div>
-				<div className={styles.metaItem}>
-					<span className={styles.metaLabel}>Mastodon</span>
-					<span
-						className={`${styles.status} ${
-							isMastodonConnected ? styles.statusActive : styles.statusInactive
-						}`}
-					>
-						<span className={styles.statusDot} />
-						{isMastodonConnected ? "Connected" : "Not connected"}
-					</span>
-				</div>
-			</div>
-			<div className={styles.actions}>
-				<button
-					type="button"
-					className={styles.deleteButton}
-					onClick={handleDelete}
-					disabled={isDeleting || isUpdating || user.role === "admin"}
-				>
-					{user.role === "admin" ? "Admin" : "Delete user"}
-				</button>
-			</div>
+			)}
 		</div>
 	);
 }
