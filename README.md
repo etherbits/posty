@@ -1,7 +1,8 @@
 # Posty 
-app for scheduling posts on Mastodon
+app for scheduling posts on Mastodon and Bluesky
 
-<img width="1359" height="1098" alt="image" src="https://github.com/user-attachments/assets/09b44f77-1b6c-4716-9eb7-afbea10ae522" />
+<img width="1297" height="892" alt="image" src="https://github.com/user-attachments/assets/aa7e9442-47f9-48b2-899c-3c4a07d8678c" />
+
 
 
 ## Team members
