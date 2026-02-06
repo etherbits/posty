@@ -291,6 +291,71 @@ router.patch("/:id", authMiddleware, async (req, res) => {
 	return res.status(200).json(post);
 });
 
+// Ping endpoint to show routes are active
+router.get("/ping", (req, res) => {
+	res.json({ message: "Post routes active!", timestamp: new Date().toISOString() });
+  });
+
+  
+
+  // Get all draft posts for the logged-in user
+router.get("/drafts", authMiddleware, async (req, res) => {
+	const user = await UserRepository.getByUsername(req.user.username);
+	if (!user) return res.status(404).json({ error: "User not found" });
+  
+	const drafts = await PostRepository.getOwnedPosts(user.id, { status: "draft" });
+	res.status(200).json({ drafts });
+  });
+
+  
+
+  // Like a post (increments a like counter)
+router.post("/:id/like", authMiddleware, async (req, res) => {
+	const { id } = req.params;
+	const user = await UserRepository.getByUsername(req.user.username);
+	if (!user) return res.status(404).json({ error: "User not found" });
+  
+
+
+	// Here we just call a repository method (or you can fake it)
+	const likedPost = await PostRepository.likePost(id, user.id);
+	if (!likedPost) return res.status(404).json({ error: "Post not found" });
+  
+	res.status(200).json({ message: "Post liked!", post: likedPost });
+  });
+  
+
+
+
+
+//  hello route
+router.get("/hello", (req, res) => {
+	console.log("Someone accessed /post/hello");
+	res.json({ message: "Hello from Posty backend!" });
+  });
+  
+  // Demo stats route
+  router.get("/demo-stats", (req, res) => {
+	res.json({
+	  totalPosts: 123,
+	  totalUsers: 10,
+	  activeToday: 5,
+	});
+  });
+  
+  // Server time route
+  router.get("/server-time", (req, res) => {
+	res.json({ serverTime: new Date().toISOString() });
+  });
+  
+  // Quick logging middleware
+  router.use((req, res, next) => {
+	console.log(`[DEMO LOG] ${req.method} ${req.url}`);
+	next();
+  });
+
+  
+
 // Does NOT delete the post on mastodon, but could be easily added
 router.delete("/:id", authMiddleware, async (req, res) => {
 	const { id } = req.params;
@@ -310,3 +375,5 @@ router.delete("/:id", authMiddleware, async (req, res) => {
 });
 
 export default router;
+
+

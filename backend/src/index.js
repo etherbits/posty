@@ -23,5 +23,21 @@ app.use("/post", postRoutes);
 app.use("/user", userRoutes);
 app.use("/settings", settingsRoutes);
 
-app.listen(3000, () => console.log("Posty running on: http://localhost:3000"));
+app.get("/health", (req, res) => {
+	res.json({
+		status: "ok",
+		service: "posty-backend",
+		timestamp: new Date().toISOString(),
+	});
+});
+
+
+app.listen(3000, () => {
+	console.log("=================================");
+	console.log("Posty Backend Server Started");
+	console.log("Running on: http://localhost:3000");
+	console.log(`Database: ${process.env.PGDATABASE || "not specified"}`);
+	console.log("=================================");
+});
+
 startPostDispatching();
