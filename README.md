@@ -49,3 +49,4 @@ npm run db:setup // Sets up the database with tables
 npm run db:teardown // Tears down the database (removes the tables entirely)
 npm run make-admin [username here] // Makes an admin user (requires username to be passsed of an already created user)
 ```
+Updated by Badr for final project preparation.
